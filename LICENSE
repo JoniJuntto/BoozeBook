@@ -1,43 +1,43 @@
-Proprietary License
+"Commons Clause" License Condition v1.0
+
+The Software is provided to you by the Licensor under the License, as defined below, subject to the following condition:
+
+Without limiting other conditions in the License, the grant of rights under the License will not include, and the License does not grant to you, the right to Sell the Software.
+
+For purposes of the foregoing, "Sell" means practicing any or all of the rights granted to you under the License to provide to third parties, for a fee or other consideration (including without limitation fees for hosting or consulting/support services related to the Software), a product or service whose value derives, entirely or substantially, from the functionality of the Software.
+
+Any license notice or attribution required by the License must also include this Commons Clause License Condition notice.
+
+MIT License
 
 Copyright (c) 2024 Pöhinä Group Oy / Joni Juntto
 
-All rights reserved.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), EXCEPT FOR
+COMMERCIAL OR PRODUCTION USE, to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish,
+distribute, and/or sublicense copies of the Software, and to permit persons to
+whom the Software is furnished to do so, subject to the following conditions:
 
-Terms and Conditions:
+1. The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
 
-1. Intellectual Property
+2. The Software may not be used in production environments or for commercial
+   purposes without explicit written permission from the copyright holder.
 
-   - The software and associated documentation files (the "Software") are proprietary and confidential.
-   - All rights, title, and interest in the Software remain exclusively with the copyright holder.
+3. Any modifications or derivative works must be clearly marked as such, and must
+   not be misrepresented as the original software.
 
-2. Restrictions
+4. By submitting a Pull Request, you grant the copyright holder unlimited,
+   irrevocable rights to use your contribution and you certify that your PR
+   is your original work.
 
-   - Redistribution in any form is strictly prohibited
-   - Modification for commercial purposes is strictly prohibited
-   - Creating derivative works is strictly prohibited
-   - Use of any part of the codebase in other projects is strictly prohibited
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-3. Permitted Actions
-
-   - Viewing the source code
-   - Forking the repository for the sole purpose of submitting Pull Requests
-   - Submitting Pull Requests to the original repository
-   - Using the repository for educational purposes without reproduction
-
-4. Pull Request (PR) Terms
-
-   - By submitting a Pull Request, you grant the copyright holder unlimited, irrevocable rights to use your contribution
-   - You certify that your PR is your original work
-   - You agree that your contributions will be subject to this same license
-
-5. No Warranty
-
-   - The Software is provided "AS IS", without warranty of any kind, express or implied
-   - The copyright holder accepts no liability for any damages or claims arising from the use of the Software
-
-6. Termination
-   - Any violation of these terms will result in immediate termination of rights granted herein
-   - Upon violation, you must cease all use and destroy all copies of the Software
-
-For permissions beyond the scope of this license, please contact: Joni Juntto joni@pohina.group
+For commercial licensing opportunities, please contact: joni@pohina.group
