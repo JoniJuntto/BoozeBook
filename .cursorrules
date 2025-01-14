@@ -1,0 +1,37 @@
+// React Native Expo .cursorrules
+
+// React Native Expo Best Practices
+const reactNativeExpoBestPractices = [
+  "Use functional components with hooks.",
+  "Leverage Expo SDK features and APIs.",
+  "Implement navigation using @react-navigation/native.",
+  "Manage assets with Expo's asset system for images and fonts.",
+  "Ensure robust error handling and crash reporting.",
+  "Utilize Expo's push notification system.",
+  "Adopt TypeScript for type safety.",
+  "Apply consistent styling using Nativewind.",
+  "Incorporate Lucide icons vector icons.",
+  "Secure sensitive data with Expo's SecureStore.",
+  "Implement proper offline support.",
+  "Optimize performance following React Native best practices.",
+  "Style components using NativeWind.",
+  "Use React Query for data fetching and caching.",
+  "Use zustand for state management.",
+  "Use expo-splash-screen for splash screen.",
+  "Use supabase for authentication and database.",
+];
+
+// Folder Structure
+const folderStructure = `
+assets/
+src/
+  components/
+  screens/
+  navigation/
+  hooks/
+  utils/
+  integrations/
+  stores/
+App.tsx
+app.json
+`;
