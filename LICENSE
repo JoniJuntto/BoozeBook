@@ -1,0 +1,43 @@
+Proprietary License
+
+Copyright (c) 2024 Pöhinä Group Oy / Joni Juntto
+
+All rights reserved.
+
+Terms and Conditions:
+
+1. Intellectual Property
+
+   - The software and associated documentation files (the "Software") are proprietary and confidential.
+   - All rights, title, and interest in the Software remain exclusively with the copyright holder.
+
+2. Restrictions
+
+   - Redistribution in any form is strictly prohibited
+   - Modification for commercial purposes is strictly prohibited
+   - Creating derivative works is strictly prohibited
+   - Use of any part of the codebase in other projects is strictly prohibited
+
+3. Permitted Actions
+
+   - Viewing the source code
+   - Forking the repository for the sole purpose of submitting Pull Requests
+   - Submitting Pull Requests to the original repository
+   - Using the repository for educational purposes without reproduction
+
+4. Pull Request (PR) Terms
+
+   - By submitting a Pull Request, you grant the copyright holder unlimited, irrevocable rights to use your contribution
+   - You certify that your PR is your original work
+   - You agree that your contributions will be subject to this same license
+
+5. No Warranty
+
+   - The Software is provided "AS IS", without warranty of any kind, express or implied
+   - The copyright holder accepts no liability for any damages or claims arising from the use of the Software
+
+6. Termination
+   - Any violation of these terms will result in immediate termination of rights granted herein
+   - Upon violation, you must cease all use and destroy all copies of the Software
+
+For permissions beyond the scope of this license, please contact: Joni Juntto joni@pohina.group
