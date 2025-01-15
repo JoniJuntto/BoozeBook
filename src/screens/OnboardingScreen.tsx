@@ -24,6 +24,7 @@ import {
   useAnimatedScrollHandler,
 } from "react-native-reanimated";
 import { Bubbles } from "../components/Bubbles";
+import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
 
@@ -34,50 +35,54 @@ interface OnboardingSlide {
   icon: React.ReactNode;
 }
 
-const slides: OnboardingSlide[] = [
-  {
-    id: 1,
-    title: "Track Your Journey",
-    description:
-      "Log drinks effortlessly and get data like your weekly average, total drinks, and more.",
-    icon: <Beer size={48} color="#9333EA" />,
-  },
-  {
-    id: 2,
-    title: "Visualize Progress",
-    description:
-      "Watch your habits transform through beautiful, interactive charts and insights.",
-    icon: <LineChart size={48} color="#9333EA" />,
-  },
-  {
-    id: 3,
-    title: "Join Challenges",
-    description:
-      "Participate in community challenges and earn badges for your achievements.",
-    icon: <Trophy size={48} color="#9333EA" />,
-  },
-];
-
-interface LogoScreen extends OnboardingSlide {
-  isLogoScreen: boolean;
-}
-
-const allSlides: (OnboardingSlide | LogoScreen)[] = [
-  {
-    id: 0,
-    title: "",
-    description: "",
-    icon: null,
-    isLogoScreen: true,
-  },
-  ...slides,
-];
 
 export default function OnboardingScreen({
   setShowOnBoarding,
 }: {
   setShowOnBoarding: (show: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
+  const slides: OnboardingSlide[] = [
+    {
+      id: 1,
+      title: t('onboarding.trackYourJourney'),
+      description:
+        t('onboarding.logDrinksEffortlessly'),
+      icon: <Beer size={48} color="#9333EA" />,
+    },
+    {
+      id: 2,
+      title: t('onboarding.visualizeProgress'),
+      description:
+        t('onboarding.watchHabitsTransform'),
+      icon: <LineChart size={48} color="#9333EA" />,
+    },
+    {
+      id: 3,
+      title: t('onboarding.joinChallenges'),
+      description:
+        t('onboarding.participateInChallenges'),
+      icon: <Trophy size={48} color="#9333EA" />,
+    },
+  ];
+  
+  interface LogoScreen extends OnboardingSlide {
+    isLogoScreen: boolean;
+  }
+  
+  const allSlides: (OnboardingSlide | LogoScreen)[] = [
+    {
+      id: 0,
+      title: "",
+      description: "",
+      icon: null,
+      isLogoScreen: true,
+    },
+    ...slides,
+  ];
+  
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useSharedValue(0);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
@@ -120,7 +125,7 @@ export default function OnboardingScreen({
               className="text-white text-center text-xl"
               style={{ fontFamily: 'Inter' }}
             >
-              A new way to track your drinking
+              {t('onboarding.aNewWayToTrackYourDrinking')}
             </Animated.Text>
           </Animated.View>
         </View>
@@ -263,7 +268,7 @@ export default function OnboardingScreen({
             ${currentIndex === slides.length - 1 ? "bg-green-600" : ""}`}
         >
           <Text className="text-white font-bold text-lg mr-2">
-            {currentIndex === slides.length - 1 ? "Get Started" : "Next"}
+            {currentIndex === slides.length - 1 ? t('onboarding.getStarted') : t('onboarding.next')}
           </Text>
           <ArrowRight color="white" size={20} />
         </TouchableOpacity>

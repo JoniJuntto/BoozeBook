@@ -12,6 +12,7 @@ import {
 import { X, Plus, ChevronDown, Camera } from "lucide-react-native";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { drinkTypes } from "../utils/constants";
+import { useTranslation } from "react-i18next";
 
 type QuickAddModalProps = {
   visible: boolean;
@@ -30,6 +31,7 @@ export default function QuickAddModal({
   handleSubmit,
   onScannerRequest,
 }: QuickAddModalProps): JSX.Element {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(false);
 
@@ -37,7 +39,7 @@ export default function QuickAddModal({
     setShowForm(false);
     onClose();
   };
-  
+
   if (!showForm) {
     return (
       <Modal visible={visible} animationType="slide" transparent>
@@ -49,7 +51,9 @@ export default function QuickAddModal({
           >
             <View className="p-4 border-b border-gray-800">
               <View className="flex-row justify-between items-center">
-                <Text className="text-2xl font-bold text-white">Add Drink</Text>
+                <Text className="text-2xl font-bold text-white">
+                  {t('quickAddModal.addDrink')}
+                </Text>
                 <TouchableOpacity
                   onPress={resetAndClose}
                   className="p-2 bg-secondary rounded-full"
@@ -70,10 +74,10 @@ export default function QuickAddModal({
                 <Camera size={24} color="white" />
                 <View className="ml-4">
                   <Text className="text-white font-semibold text-lg">
-                    Scan Barcode
+                    {t('quickAddModal.scanBarcode')}
                   </Text>
                   <Text className="text-gray-400">
-                    Quickly add drink by scanning barcode
+                    {t('quickAddModal.quicklyAddDrinkByScanningBarcode')}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -85,10 +89,10 @@ export default function QuickAddModal({
                 <Plus size={24} color="white" />
                 <View className="ml-4">
                   <Text className="text-white font-semibold text-lg">
-                    Manual Entry
+                    {t('quickAddModal.manualEntry')}
                   </Text>
                   <Text className="text-gray-400">
-                    Add drink details manually
+                    {t('quickAddModal.addDrinkDetailsManually')}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -113,7 +117,9 @@ export default function QuickAddModal({
           >
             {/* Header */}
             <View className="flex-row justify-between items-center p-4 border-b border-gray-800">
-              <Text className="text-2xl font-bold text-white">Add Drink</Text>
+              <Text className="text-2xl font-bold text-white">
+                {t('quickAddModal.addDrink')}
+              </Text>
               <TouchableOpacity
                 onPress={onClose}
                 className="p-2 bg-secondary rounded-full"
@@ -129,10 +135,10 @@ export default function QuickAddModal({
                 className="mb-6"
               >
                 <Text className="text-sm font-medium text-gray-400 mb-3">
-                  What are you drinking?
+                  {t('quickAddModal.whatAreYouDrinking')}
                 </Text>
                 <View className="flex-row flex-wrap gap-2">
-                  {drinkTypes.map(({ value, label, Icon }: any) => (
+                  {drinkTypes.map(({ value, translationKey, Icon }: any) => (
                     <TouchableOpacity
                       key={value}
                       onPress={() => handleChange("type", value)}
@@ -141,7 +147,7 @@ export default function QuickAddModal({
                       }`}
                     >
                       {Icon && <Icon size={18} color="white" />}
-                      <Text className="text-white font-medium">{label}</Text>
+                      <Text className="text-white font-medium">{t(translationKey)}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -154,7 +160,7 @@ export default function QuickAddModal({
               >
                 <View className="flex-1">
                   <Text className="text-sm font-medium text-gray-400 mb-2">
-                    Volume (ml)
+                    {t('quickAddModal.volume')}
                   </Text>
                   <TextInput
                     value={formData.volume_ml}
@@ -167,7 +173,7 @@ export default function QuickAddModal({
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-medium text-gray-400 mb-2">
-                    Alcohol %
+                    {t('quickAddModal.alcoholPercentage')}
                   </Text>
                   <TextInput
                     value={formData.alcohol_percentage}
@@ -188,7 +194,7 @@ export default function QuickAddModal({
                 className="flex-row items-center justify-between py-3 px-4 bg-secondary rounded-xl mb-6"
               >
                 <Text className="text-white font-medium">
-                  Additional Details (Optional)
+                  {t('quickAddModal.additionalDetails')}
                 </Text>
                 <ChevronDown
                   size={20}
@@ -208,7 +214,7 @@ export default function QuickAddModal({
                 >
                   <View>
                     <Text className="text-sm font-medium text-gray-400 mb-2">
-                      Drink Name
+                      {t('quickAddModal.drinkName')}
                     </Text>
                     <TextInput
                       value={formData.name}
@@ -221,7 +227,7 @@ export default function QuickAddModal({
 
                   <View>
                     <Text className="text-sm font-medium text-gray-400 mb-2">
-                      Location
+                      {t('quickAddModal.location')}
                     </Text>
                     <TextInput
                       value={formData.location}
@@ -235,7 +241,7 @@ export default function QuickAddModal({
                   <View className="flex-row gap-4">
                     <View className="flex-1">
                       <Text className="text-sm font-medium text-gray-400 mb-2">
-                        Mood
+                        {t('quickAddModal.mood')}
                       </Text>
                       <TextInput
                         value={formData.mood}
@@ -247,7 +253,7 @@ export default function QuickAddModal({
                     </View>
                     <View className="flex-1">
                       <Text className="text-sm font-medium text-gray-400 mb-2">
-                        Cost
+                        {t('quickAddModal.cost')}
                       </Text>
                       <TextInput
                         value={formData.cost}
@@ -274,7 +280,7 @@ export default function QuickAddModal({
               >
                 <Plus size={20} color="white" />
                 <Text className="text-white font-semibold text-lg">
-                  Add Drink
+                  {t('quickAddModal.addDrink')}
                 </Text>
               </TouchableOpacity>
             </View>

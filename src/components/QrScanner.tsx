@@ -15,6 +15,7 @@ import {
 } from "expo-camera";
 import { Dimensions } from "react-native";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import { useTranslation } from "react-i18next";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -30,6 +31,7 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
   onClose,
   onCodeScanned,
 }) => {
+  const { t } = useTranslation();
   const [facing, setFacing] = useState<CameraType>("back");
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -63,18 +65,18 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
   if (!permission.granted) {
     Dialog.show({
       type: ALERT_TYPE.WARNING,
-      title: 'Permission Required',
-      textBody: 'Camera permission is required to scan QR codes',
-      button: 'Grant',
+      title: t('alerts.permissionRequired'),
+      textBody: t('alerts.cameraPermissionRequired'),
+      button: t('alerts.grant'),
       closeOnOverlayTap: true,
       onPressButton: async () => {
         const result = await requestPermission();
         if (!result.granted) {
           Dialog.show({
             type: ALERT_TYPE.DANGER,
-            title: 'Permission Denied',
-            textBody: 'Cannot scan QR codes without camera permission',
-            button: 'Close',
+            title: t('alerts.permissionDenied'),
+            textBody: t('alerts.cannotScanWithoutCameraPermission'),
+            button: t('alerts.close'),
             onPressButton: onClose,
           });
         }
@@ -116,7 +118,7 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
           <View style={styles.overlay}>
             <View style={styles.scanArea} />
             <Text style={styles.scanText}>
-              Position barcode within the frame
+              {t('alerts.positionBarcodeWithinTheFrame')}
             </Text>
           </View>
 
@@ -125,10 +127,10 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
               style={styles.controlButton}
               onPress={toggleCameraFacing}
             >
-              <Text style={styles.controlText}>📷 Flip</Text>
+              <Text style={styles.controlText}>{t('alerts.flipCamera')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.controlButton} onPress={onClose}>
-              <Text style={styles.controlText}>❌ Close</Text>
+              <Text style={styles.controlText}>{t('alerts.close')}</Text>
             </TouchableOpacity>
           </View>
         </CameraView>

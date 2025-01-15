@@ -18,6 +18,7 @@ import Header from "../components/Header";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import LanguageSelector from '../components/LanguageSelector';
 import { useTranslation } from "react-i18next";
+import CreateSuggestion from "../components/CreateSuggestion";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
@@ -247,20 +248,22 @@ export default function ProfileScreen() {
               <View className="mt-4 space-y-4">
                 <View>
                   <Text className="text-gray-400 text-sm mb-2">
-                    Weight (kg)
+                    {t('common.weight')} (kg)
                   </Text>
                   <TextInput
                     className="text-white bg-[#1D1C21] px-4 py-3 rounded-lg"
                     value={weight}
                     onChangeText={setWeight}
                     keyboardType="numeric"
-                    placeholder="Enter weight"
+                    placeholder={t('common.enterWeight')}
                     placeholderTextColor="#666"
                   />
                 </View>
 
                 <View>
-                  <Text className="text-gray-400 text-sm mb-2">Gender</Text>
+                  <Text className="text-gray-400 text-sm mb-2">
+                    {t('common.gender')}
+                  </Text>
                   <View className="flex-row gap-3">
                     <TouchableOpacity
                       onPress={() => setGender("male")}
@@ -275,7 +278,7 @@ export default function ProfileScreen() {
                           gender === "male" ? "text-white" : "text-gray-400"
                         }`}
                       >
-                        Male
+                        {t('common.male')}
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -291,7 +294,7 @@ export default function ProfileScreen() {
                           gender === "female" ? "text-white" : "text-gray-400"
                         }`}
                       >
-                        Female
+                        {t('common.female')}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -302,7 +305,7 @@ export default function ProfileScreen() {
                   className="bg-[#8884d8] px-4 py-3 rounded-lg mt-2"
                 >
                   <Text className="text-white text-center font-semibold">
-                    Save Changes
+                    {t('common.saveChanges')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -310,13 +313,17 @@ export default function ProfileScreen() {
           </View>
           <View className="bg-[#2A2A2E] rounded-lg p-4 mt-6">
             <View>
-              <Text className="text-[#666] text-sm mb-1">Member Since</Text>
+              <Text className="text-[#666] text-sm mb-1">
+                {t('common.memberSince')}
+              </Text>
               <Text className="text-white">
                 {new Date(profile?.created_at || "").toLocaleDateString()}
               </Text>
             </View>
             <View>
-              <Text className="text-[#666] text-sm mb-1">App Version</Text>
+              <Text className="text-[#666] text-sm mb-1">
+                {t('common.appVersion')}
+              </Text>
               <Text className="text-white">
                 {Application.nativeApplicationVersion}
               </Text>
@@ -330,9 +337,12 @@ export default function ProfileScreen() {
             className="flex-row items-center justify-center bg-red-500 p-4 rounded-lg mt-6"
           >
             <LogOut size={20} color="white" className="mr-2" />
-            <Text className="text-white font-semibold">Logout</Text>
+            <Text className="text-white font-semibold">
+              {t('common.logout')}
+            </Text>
           </TouchableOpacity>
         </View>
+        <CreateSuggestion />
       </ScrollView>
       <Footer />
     </View>

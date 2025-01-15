@@ -13,7 +13,7 @@ const languages = [
 ];
 
 export default function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const setLanguage = async (langCode: string) => {
     try {
@@ -26,7 +26,9 @@ export default function LanguageSelector() {
 
   return (
     <View className="bg-[#2A2A2E] rounded-lg p-4">
-      <Text className="text-white text-lg font-semibold mb-3">Select Language</Text>
+      <Text className="text-white text-lg font-semibold mb-3">
+        {t('common.selectLanguage')}
+      </Text>
       <View className="flex-row flex-wrap gap-2">
         {languages.map((lang) => (
           <TouchableOpacity

@@ -16,6 +16,7 @@ import {
 import type { Database } from "../integrations/supabase/types";
 import { supabase } from "../integrations/supabase/client";
 import Footer from "./Footer";
+import { useTranslation } from "react-i18next";
 
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -108,6 +109,7 @@ const OwnAnalytics = (props: {
   profile?: Profile;
   onRefresh?: () => Promise<void>;
 }) => {
+  const { t } = useTranslation();
   const { width: screenWidth } = useWindowDimensions();
   const [drinks, setDrinks] = useState<Drink[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -579,7 +581,6 @@ const OwnAnalytics = (props: {
     };
   };
 
-  // Add this helper function
   const hasData = (data: any[]): boolean => {
     return data.length > 0 && data.some(item => item.population > 0);
   };
@@ -587,19 +588,21 @@ const OwnAnalytics = (props: {
   return (
     <View className="flex-1">
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
-        <Text className="text-xl font-bold mb-4 text-white">Basic Stats</Text>
+        <Text className="text-xl font-bold mb-4 text-white">
+          {t('analytics.basicStats')}
+        </Text>
         {processBasicStats() && (
           <View className="flex-row flex-wrap justify-between mb-6">
             <StatBox
-              label="Total Drinks"
+              label={t('analytics.totalDrinks')}
               value={processBasicStats()?.totalDrinks.toString() ?? "0"}
             />
             <StatBox
-              label="Most Frequent"
+              label={t('analytics.mostFrequent')}
               value={processBasicStats()?.mostFrequentType ?? "N/A"}
             />
             <StatBox
-              label="Avg Drinks/Day"
+              label={t('analytics.avgDrinksPerDay')}
               value={processBasicStats()?.avgDrinksPerDay ?? "0"}
             />
           </View>
@@ -608,7 +611,7 @@ const OwnAnalytics = (props: {
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Time of Day Pattern
+          {t('analytics.timeOfDayPattern')}
         </Text>
         {hasData(processTimeOfDay()) ? (
           <>
@@ -644,27 +647,27 @@ const OwnAnalytics = (props: {
             </View>
           </>
         ) : (
-          <EmptyState message="No time of day data available yet" />
+          <EmptyState message={t('analytics.noTimeData')} />
         )}
       </View>
 
       <View className="p-6 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-6 text-white">
-          Drinking Patterns
+          {t('analytics.drinkingPatterns')}
         </Text>
 
         <View className="mb-8">
           <Text className="text-gray-400 text-sm mb-4 uppercase tracking-wider">
-            Frequency
+            {t('analytics.frequency')}
           </Text>
           <View className="flex-row justify-between mb-2">
             {(() => {
               const freq = processDrinkingFrequency();
               return (
                 <>
-                  <StatBox label="Drinking Days" value={freq.drinkingDays} />
-                  <StatBox label="Sober Days" value={freq.nonDrinkingDays || "No data"} />
-                  <StatBox label="Frequency" value={typeof freq.frequency === 'number' ? freq.frequency : "No data"} unit="%" />
+                  <StatBox label={t('analytics.drinkingDays')} value={freq.drinkingDays} />
+                  <StatBox label={t('analytics.soberDays')} value={freq.nonDrinkingDays || t('common.noData')} />
+                  <StatBox label={t('analytics.frequency')} value={typeof freq.frequency === 'number' ? freq.frequency : t('common.noData')} unit="%" />
                 </>
               );
             })()}
@@ -673,7 +676,7 @@ const OwnAnalytics = (props: {
 
         <View className="mb-8">
           <Text className="text-gray-300 text-sm mb-4 uppercase tracking-wider">
-            Milestones
+            {t('analytics.milestones')}
           </Text>
           {(() => {
             const milestones = processDrinkingMilestones();
@@ -681,26 +684,26 @@ const OwnAnalytics = (props: {
               <View className="space-y-4">
                 <View className="bg-background/40 mb-4 rounded-lg p-4">
                   <Text className="text-gray-400 text-xs uppercase tracking-wider">
-                    Most Active
+                    {t('analytics.mostActive')}
                   </Text>
                   <Text className="text-white text-lg mt-1">
-                    {milestones.mostActiveDay?.date || "No data"}
+                    {milestones.mostActiveDay?.date || t('common.noData')}
                   </Text>
                   <Text className="text-primary text-sm">
-                    {milestones.mostActiveDay?.count || "No data about"} drinks
+                    {milestones.mostActiveDay?.count || t('common.noDataAbout')} drinks
                   </Text>
                 </View>
 
                 <View className="flex-row justify-between">
                   <StatBox
-                    label="Longest Streak"
+                    label={t('analytics.longestStreak')}
                     value={milestones.longestStreak}
-                    unit="days"
+                    unit={t('analytics.days')}
                   />
                   <StatBox
-                    label="Longest Break"
+                    label={t('analytics.longestBreak')}
                     value={milestones.longestBreak}
-                    unit="days"
+                    unit={t('analytics.days')}
                   />
                 </View>
               </View>
@@ -710,7 +713,7 @@ const OwnAnalytics = (props: {
 
         <View>
           <Text className="text-gray-300 text-sm mb-4 uppercase tracking-wider">
-            Sessions
+            {t('analytics.sessions')}
           </Text>
           {(() => {
             const sessions = processDrinkingSessions();
@@ -718,23 +721,23 @@ const OwnAnalytics = (props: {
               <View className="bg-background/40 rounded-lg p-4">
                 <View className="flex-row justify-between mb-4">
                   <StatBox
-                    label="Total Sessions"
+                    label={t('analytics.totalSessions')}
                     value={sessions.totalSessions}
                   />
                   <StatBox
-                    label="Avg Drinks/Session"
-                    value={typeof sessions.avgDrinksPerSession === 'number' ? sessions.avgDrinksPerSession : "No data"}
+                    label={t('analytics.avgDrinksPerSession')}
+                    value={typeof sessions.avgDrinksPerSession === 'number' ? sessions.avgDrinksPerSession : t('common.noData')}
                   />
                 </View>
                 <View className="bg-background/40 rounded-lg p-4">
                   <Text className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-                    Average Alcohol per Session
+                    {t('analytics.avgAlcoholPerSession')}
                   </Text>
                   <View className="flex-row items-baseline">
                     <Text className="text-white text-2xl font-bold">
-                      {typeof sessions.avgAlcoholPerSession === 'number' ? sessions.avgAlcoholPerSession : "No data"}
+                      {typeof sessions.avgAlcoholPerSession === 'number' ? sessions.avgAlcoholPerSession : t('common.noData')}
                     </Text>
-                    <Text className="text-gray-400 text-sm ml-1">grams</Text>
+                    <Text className="text-gray-400 text-sm ml-1">{t('analytics.grams')}</Text>
                   </View>
                 </View>
               </View>
@@ -745,7 +748,7 @@ const OwnAnalytics = (props: {
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Drinks by Type
+          {t('analytics.drinksByType')}
         </Text>
         {hasData(processTypeData()) ? (
           <>
@@ -778,12 +781,12 @@ const OwnAnalytics = (props: {
             </View>
           </>
         ) : (
-          <EmptyState message="No drink type data available yet" />
+          <EmptyState message={t('analytics.noDrinkTypeData')} />
         )}
       </View>
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Alcohol Strength Distribution
+          {t('analytics.alcoholStrengthDistribution')}
         </Text>
         {hasData(processAlcoholStrengthDistribution()) ? (
           <>
@@ -819,13 +822,13 @@ const OwnAnalytics = (props: {
             </View>
           </>
         ) : (
-          <EmptyState message="No alcohol strength data available yet" />
+          <EmptyState message={t('analytics.noAlcoholStrengthData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Volume Consumed (Last 7 Days)
+          {t('analytics.volumeConsumedLast7Days')}
         </Text>
         {hasData(processVolumeOverTime().datasets[0].data) ? (
           <LineChart
@@ -842,13 +845,13 @@ const OwnAnalytics = (props: {
             }}
           />
         ) : (
-          <EmptyState message="No volume data available for the last 7 days" />
+          <EmptyState message={t('analytics.noVolumeData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Top 5 Favorite Drinks
+          {t('analytics.top5FavoriteDrinks')}
         </Text>
         {hasData(processTopDrinks().datasets[0].data) ? (
           <BarChart
@@ -874,13 +877,13 @@ const OwnAnalytics = (props: {
             showValuesOnTopOfBars
           />
         ) : (
-          <EmptyState message="No drink data available yet" />
+          <EmptyState message={t('analytics.noDrinkData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          24-Hour Distribution
+          {t('analytics.24HourDistribution')}
         </Text>
         <LineChart
           data={processHourlyDistribution()}
@@ -905,7 +908,7 @@ const OwnAnalytics = (props: {
       </View>
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Weekly Pattern
+          {t('analytics.weeklyPattern')}
         </Text>
         {hasData(processWeeklyData()) ? (
           <BarChart
@@ -923,12 +926,14 @@ const OwnAnalytics = (props: {
             }}
           />
         ) : (
-          <EmptyState message="No weekly pattern data available yet" />
+          <EmptyState message={t('analytics.noWeeklyPatternData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
-        <Text className="text-xl font-bold mb-4 text-white">Monthly Trend</Text>
+        <Text className="text-xl font-bold mb-4 text-white">
+          {t('analytics.monthlyTrend')}
+        </Text>
         <BarChart
           data={processMonthlyTrend()}
           width={screenWidth - 64}
@@ -946,7 +951,7 @@ const OwnAnalytics = (props: {
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Mood Distribution
+          {t('analytics.moodDistribution')}
         </Text>
         {hasData(processMoodDistribution()) ? (
           <>
@@ -979,13 +984,13 @@ const OwnAnalytics = (props: {
             </View>
           </>
         ) : (
-          <EmptyState message="No mood data available yet" />
+          <EmptyState message={t('analytics.noMoodData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Location Distribution
+          {t('analytics.locationDistribution')}
         </Text>
         {hasData(processLocationDistribution()) ? (
           <>
@@ -1018,13 +1023,13 @@ const OwnAnalytics = (props: {
             </View>
           </>
         ) : (
-          <EmptyState message="No location data available yet" />
+          <EmptyState message={t('analytics.noLocationData')} />
         )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
-          Weekly Spending
+          {t('analytics.weeklySpending')}
         </Text>
         <BarChart
           data={processSpendingTrend()}

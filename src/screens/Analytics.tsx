@@ -4,10 +4,12 @@ import OwnAnalytics from "../components/OwnAnalytics";
 import { supabase } from "../integrations/supabase/client";
 import type { Database } from "../integrations/supabase/types";
 import Header from "../components/Header";
+import { useTranslation } from "react-i18next";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export default function Analytics() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,7 +59,9 @@ export default function Analytics() {
     <View className="flex-1 bg-[#1D1C21] px-4">
       <Header />
       <View className="px-6 pt-6 rounded-lg pb-4">
-        <Text className="text-white text-2xl font-bold">Analytics</Text>
+        <Text className="text-white text-2xl font-bold">
+          {t('common.analytics')}
+        </Text>
       </View>
       <ScrollView 
         className="flex-1"

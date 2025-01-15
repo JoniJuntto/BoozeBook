@@ -3,14 +3,39 @@ import "./src/utils/i18n";
 import { I18nextProvider } from 'react-i18next';
 import i18n from './src/utils/i18n';
 import OnboardingScreen from "./src/screens/OnboardingScreen";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigator from "./src/navigation/Navigator";
 import { View } from "react-native";
 import { AlertNotificationRoot } from 'react-native-alert-notification';
+import * as SecureStore from 'expo-secure-store';
 
 export default function App() {
   const [showOnBoarding, setShowOnBoarding] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkOnboardingStatus();
+  }, []);
+
+  const checkOnboardingStatus = async () => {
+    try {
+      const hasSeenOnboarding = await SecureStore.getItemAsync('hasSeenOnboarding');
+      setShowOnBoarding(!hasSeenOnboarding);
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOnboardingComplete = async () => {
+    try {
+      await SecureStore.setItemAsync('hasSeenOnboarding', 'true');
+      setShowOnBoarding(false);
+    } catch (error) {
+      console.error('Error saving onboarding status:', error);
+    }
+  };
 
   if (isLoading) {
     return null;
@@ -21,7 +46,7 @@ export default function App() {
       <AlertNotificationRoot>
         <View className="flex-1 bg-background">
           {showOnBoarding ? (
-            <OnboardingScreen setShowOnBoarding={setShowOnBoarding} />
+            <OnboardingScreen setShowOnBoarding={handleOnboardingComplete} />
           ) : (
             <Navigator />
           )}

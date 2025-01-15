@@ -5,15 +5,16 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
 import { supabase } from "../integrations/supabase/client";
 import { Bubbles } from "../components/Bubbles";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,14 +56,14 @@ export default function Login() {
       
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
-        title: 'Success',
-        textBody: 'Registration successful! Please check your email for verification.',
+        title: t('alerts.success'),
+        textBody: t('alerts.registrationSuccessful'),
         button: 'OK',
       });
     } catch (error) {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
-        title: 'Error',
+        title: t('alerts.error'),
         textBody: error.message,
         button: 'OK',
       });
@@ -78,13 +79,13 @@ export default function Login() {
     >
       <View className="flex-1 justify-center px-8">
         <Text className="text-white text-3xl font-bold mb-8 text-center">
-          Welcome
+          {t('login.welcome')}
         </Text>
 
         <View className="space-y-6">
           <TextInput
             className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white my-4"
-            placeholder="Email"
+            placeholder={t('login.email')}
             placeholderTextColor="#666"
             value={email}
             onChangeText={setEmail}
@@ -94,7 +95,7 @@ export default function Login() {
 
           <TextInput
             className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white mb-4"
-            placeholder="Password"
+            placeholder={t('login.password')}
             placeholderTextColor="#666"
             value={password}
             onChangeText={setPassword}
@@ -110,7 +111,7 @@ export default function Login() {
             {loading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-semibold">Login</Text>
+              <Text className="text-white font-semibold">{t('common.login')}</Text>
             )}
           </TouchableOpacity>
 
@@ -122,7 +123,7 @@ export default function Login() {
             {loading ? (
               <ActivityIndicator color="#8884d8" />
             ) : (
-              <Text className="text-[#8884d8] font-semibold">Sign Up</Text>
+              <Text className="text-[#8884d8] font-semibold">{t('common.signUp')}</Text>
             )}
           </TouchableOpacity>
         </View>

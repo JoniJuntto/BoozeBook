@@ -347,7 +347,7 @@ export default function HomeScreen(): JSX.Element {
                 )
               }]
             }}
-            className="bg-secondary border mt-8 border-primary/20 rounded-2xl overflow-hidden"
+            className="bg-secondary border mt-12 border-primary/20 rounded-2xl overflow-hidden"
           >
             <View className="p-4 border-b border-primary/20">
               <Text className="text-xl font-semibold text-white">
