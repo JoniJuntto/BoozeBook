@@ -14,6 +14,7 @@ import {
   BarcodeScanningResult,
 } from "expo-camera";
 import { Dimensions } from "react-native";
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -60,31 +61,26 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
   }
 
   if (!permission.granted) {
-    return (
-      <Modal
-        visible={isVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={onClose}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Camera permission is required to scan QR codes
-            </Text>
-            <TouchableOpacity style={styles.button} onPress={requestPermission}>
-              <Text style={styles.buttonText}>Grant Permission</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonSecondary]}
-              onPress={onClose}
-            >
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    );
+    Dialog.show({
+      type: ALERT_TYPE.WARNING,
+      title: 'Permission Required',
+      textBody: 'Camera permission is required to scan QR codes',
+      button: 'Grant',
+      closeOnOverlayTap: true,
+      onPressButton: async () => {
+        const result = await requestPermission();
+        if (!result.granted) {
+          Dialog.show({
+            type: ALERT_TYPE.DANGER,
+            title: 'Permission Denied',
+            textBody: 'Cannot scan QR codes without camera permission',
+            button: 'Close',
+            onPressButton: onClose,
+          });
+        }
+      },
+    });
+    return null;
   }
 
   return (

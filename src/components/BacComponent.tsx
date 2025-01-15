@@ -3,12 +3,10 @@ import {
   isToday,
   isYesterday,
   parseISO,
-  startOfYesterday,
 } from "date-fns";
-
-import { startOfToday } from "date-fns";
 import type { Database } from "../integrations/supabase/types";
 import { View, Text } from "react-native";
+import { useTranslation } from "react-i18next";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
@@ -71,9 +69,9 @@ export default function BacComponent({
     totalBAC = Math.round(totalBAC * 10000) / 10000;
 
     let status = "Sober";
-    if (totalBAC > 0.08) status = "Legally intoxicated";
-    else if (totalBAC > 0.05) status = "Impaired";
-    else if (totalBAC > 0.02) status = "Slightly impaired";
+    if (totalBAC > 0.05) status = "legally_intoxicated";
+    else if (totalBAC > 0.03) status = "impaired";
+    else if (totalBAC > 0.01) status = "slightly_impaired";
 
     return {
       bac: totalBAC,
@@ -100,11 +98,12 @@ export default function BacComponent({
   };
 
   const bacData = calculateBAC();
+  const { t } = useTranslation();
 
   return (
     <View className="p-6 bg-secondary rounded-xl shadow-lg ">
       <Text className="text-xl font-bold mb-4 text-white">
-        Current BAC Estimate
+        {t('common.bacEstimate')}
       </Text>
       <View className="flex-row justify-between items-center">
         <Text className="text-3xl font-bold text-highlight">
@@ -113,9 +112,16 @@ export default function BacComponent({
         <Text
           className={`text-lg font-semibold ${getStatusColor(bacData.status)}`}
         >
-          {bacData.status}
+          {t(`common.status.${bacData.status}`)}
         </Text>
+        
       </View>
+      <Text className="text-sm text-gray-100 my-2">
+          {t('common.lastDrink')} {bacData.lastDrink?.toLocaleTimeString()}
+        </Text>
+        <Text className="text-sm text-gray-400">
+          {t('common.bacEstimateLegalNotice')}
+        </Text>
     </View>
   );
 }

@@ -10,6 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { supabase } from "../integrations/supabase/client";
+import { Bubbles } from "../components/Bubbles";
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -28,7 +30,12 @@ export default function Login() {
 
       if (error) throw error;
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     } finally {
       setLoading(false);
     }
@@ -45,12 +52,20 @@ export default function Login() {
       });
 
       if (error) throw error;
-      Alert.alert(
-        "Success",
-        "Registration successful! Please check your email for verification."
-      );
+      
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: 'Success',
+        textBody: 'Registration successful! Please check your email for verification.',
+        button: 'OK',
+      });
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     } finally {
       setLoading(false);
     }
@@ -66,9 +81,9 @@ export default function Login() {
           Welcome
         </Text>
 
-        <View className="space-y-4">
+        <View className="space-y-6">
           <TextInput
-            className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white my-2"
+            className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white my-4"
             placeholder="Email"
             placeholderTextColor="#666"
             value={email}
@@ -78,7 +93,7 @@ export default function Login() {
           />
 
           <TextInput
-            className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white mb-2"
+            className="bg-[#2A2A2E] h-12 px-4 rounded-lg text-white mb-4"
             placeholder="Password"
             placeholderTextColor="#666"
             value={password}
@@ -88,7 +103,7 @@ export default function Login() {
           />
 
           <TouchableOpacity
-            className="bg-[#8884d8] h-12 rounded-lg items-center justify-center mb-2"
+            className="bg-[#8884d8] h-12 rounded-lg items-center justify-center mb-4"
             onPress={handleLogin}
             disabled={loading}
           >
@@ -111,6 +126,7 @@ export default function Login() {
             )}
           </TouchableOpacity>
         </View>
+        <Bubbles />
       </View>
     </KeyboardAvoidingView>
   );

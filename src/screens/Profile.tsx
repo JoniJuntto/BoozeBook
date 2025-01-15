@@ -2,10 +2,10 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   ScrollView,
   TextInput,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "../integrations/supabase/client";
@@ -15,11 +15,15 @@ import BacComponent from "../components/BacComponent";
 import * as Application from "expo-application";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import LanguageSelector from '../components/LanguageSelector';
+import { useTranslation } from "react-i18next";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
 
-export default function Profile() {
+export default function ProfileScreen() {
+  const { t } = useTranslation(); 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,6 +32,7 @@ export default function Profile() {
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState<"male" | "female" | null>(null);
   const [drinks, setDrinks] = useState<Drink[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchProfileAndDrinks();
@@ -56,7 +61,12 @@ export default function Profile() {
       setProfile(data);
       setDrinks(drinkData || []);
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     } finally {
       setLoading(false);
     }
@@ -67,7 +77,12 @@ export default function Profile() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     }
   }
 
@@ -82,9 +97,19 @@ export default function Profile() {
 
       setProfile({ ...profile!, username: newUsername });
       setIsEditing(false);
-      Alert.alert("Success", "Username updated successfully");
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: 'Success',
+        textBody: 'Username updated successfully',
+        button: 'OK',
+      });
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     }
   }
 
@@ -106,9 +131,19 @@ export default function Profile() {
         gender,
       }));
       setIsSettingsOpen(false);
-      Alert.alert("Success", "Profile updated successfully");
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: 'Success',
+        textBody: 'Profile updated successfully',
+        button: 'OK',
+      });
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: error.message,
+        button: 'OK',
+      });
     }
   }
 
@@ -118,6 +153,12 @@ export default function Profile() {
       setGender(profile.gender);
     }
   }, [profile]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchProfileAndDrinks();
+    setRefreshing(false);
+  };
 
   if (loading) {
     return (
@@ -129,12 +170,19 @@ export default function Profile() {
 
   return (
     <View className="flex-1 bg-[#1D1C21]">
-      {/* Header */}
       <Header />
-
-      <ScrollView className="flex-1">
+      <ScrollView 
+        className="flex-1"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#8884d8"
+            colors={["#8884d8"]}
+          />
+        }
+      >
         <View className="p-6">
-          {/* Profile Info */}
           <View className="items-center mb-8">
             <View className="w-20 h-20 bg-[#2A2A2E] rounded-full items-center justify-center mb-4">
               <User size={40} color="#8884d8" />
@@ -159,7 +207,7 @@ export default function Profile() {
               ) : (
                 <View className="flex-row items-center">
                   <Text className="text-white text-xl font-semibold">
-                    {profile?.username || "Anonymous User"}
+                    {profile?.username || t('common.anonymousUser')}
                   </Text>
                   <TouchableOpacity
                     className="ml-2"
@@ -178,7 +226,7 @@ export default function Profile() {
           <View className="bg-[#2A2A2E] rounded-lg px-4 py-6 mt-6">
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-white text-lg font-semibold">
-                BAC Settings
+                {t('common.bacSettings')}
               </Text>
               <TouchableOpacity
                 onPress={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -191,10 +239,7 @@ export default function Profile() {
             <View className="flex-row bg-[#1D1C21] p-3 rounded-lg">
               <Info size={16} color="#8884d8" />
               <Text className="text-gray-400 text-sm ml-2 flex-1 leading-5">
-                Weight and gender are used to estimate your Blood Alcohol
-                Content (BAC). This is only an approximation and can vary based
-                on metabolism, food intake, and other health factors. Never use
-                these estimates for safety-critical decisions.
+                {t('common.bacEstimateDescription')}
               </Text>
             </View>
 
@@ -276,6 +321,9 @@ export default function Profile() {
                 {Application.nativeApplicationVersion}
               </Text>
             </View>
+          </View>
+          <View className="mt-6">
+            <LanguageSelector />
           </View>
           <TouchableOpacity
             onPress={handleLogout}

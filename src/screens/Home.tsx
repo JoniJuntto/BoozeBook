@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  RefreshControl,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Plus } from "lucide-react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInUp, useAnimatedStyle, useSharedValue, withSpring, interpolate, withTiming } from "react-native-reanimated";
 import CommunityStats from "../components/CommunityStats";
 import QuickAddModal from "../components/QuickAddModal";
 import { supabase } from "../integrations/supabase/client";
@@ -20,13 +21,20 @@ import Footer from "../components/Footer";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QrScanner from "../components/QrScanner";
 import dataJson from "../data/data.json";
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import BacComponent from "../components/BacComponent";
+import { useTranslation } from 'react-i18next';
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Drink = Database["public"]["Tables"]["drinks"]["Row"];
+
 export default function HomeScreen(): JSX.Element {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const navigation = useNavigation();
   const [isScannerVisible, setIsScannerVisible] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [drinks, setDrinks] = useState<Drink[]>([]);
   const { data: session } = useQuery({
     queryKey: ["session"],
     queryFn: async () => {
@@ -36,6 +44,14 @@ export default function HomeScreen(): JSX.Element {
       return session;
     },
   });
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    console.log('Current language:', i18n.language);
+    console.log('Translation test:', t('home.communityInsights'));
+    console.log('Available languages:', i18n.languages);
+    console.log('Translation exists:', i18n.exists('home.communityInsights'));
+  }, []);
 
   const handleCodeScanned = async (data: string) => {
     const {
@@ -43,22 +59,28 @@ export default function HomeScreen(): JSX.Element {
     } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      Alert.alert("Login Required", "Please login to track your drinks", [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Login",
-          onPress: () => {
-            setIsScannerVisible(false);
-            navigation.navigate("Profile");
-          },
+      Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: t('alerts.loginRequired'),
+        textBody: t('alerts.pleaseLogin'),
+        button: t('common.login'),
+        closeOnOverlayTap: true,
+        onPressButton: () => {
+          setIsScannerVisible(false);
+          navigation.navigate("Profile");
         },
-      ]);
+      });
       return;
     }
     console.log(data);
     const product = dataJson.find((item) => item.ean === data);
     if (!product) {
-      Alert.alert("Error", "Product not found");
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: t('alerts.error'),
+        textBody: t('alerts.productNotFound'),
+        button: 'OK',
+      });
       return;
     }
 
@@ -74,15 +96,23 @@ export default function HomeScreen(): JSX.Element {
 
       if (error) throw error;
 
-      Alert.alert("Success", "Drink logged successfully!");
-      setIsScannerVisible(false);
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: t('alerts.success'),
+        textBody: t('alerts.drinkLogged'),
+        button: 'OK',
+        onPressButton: () => setIsScannerVisible(false),
+      });
     } catch (error) {
       console.error("Error inserting drink:", error);
-      Alert.alert("Error", "Failed to log drink");
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: t('alerts.error'),
+        textBody: t('alerts.failedToLog'),
+        button: 'OK',
+      });
     }
   };
-
-  const route = useRoute();
 
   useEffect(() => {
     fetchProfileAndDrinks();
@@ -102,8 +132,14 @@ export default function HomeScreen(): JSX.Element {
         .eq("id", user.id)
         .single();
 
+        const { data: drinkData, error: drinkError } = await supabase
+        .from("drinks")
+        .select("*")
+        .eq("user_id", user.id);
+
       if (error) throw error;
       setProfile(data);
+      setDrinks(drinkData || []);
     } catch (error) {
       console.error(error);
     }
@@ -138,7 +174,7 @@ export default function HomeScreen(): JSX.Element {
     },
   });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     onSubmit({
       ...formData,
       volume_ml: Number(formData.volume_ml),
@@ -146,6 +182,39 @@ export default function HomeScreen(): JSX.Element {
       cost: formData.cost ? Number(formData.cost) : null,
       added_by: profile?.username || generateAnonUsername(),
     });
+
+    try {
+      const { error } = await supabase.from("drinks").insert({
+        name: formData.name,
+        type: formData.type,
+        alcohol_percentage: formData.alcohol_percentage,
+        volume_ml: formData.volume_ml,
+        user_id: session?.user.id,
+        location: formData.location || null,
+        mood: formData.mood || null,
+        cost: formData.cost ? Number(formData.cost) : null,
+        consumed_at: new Date().toISOString(),
+        added_by: profile?.username || generateAnonUsername(),
+      });
+
+      if (error) throw error;
+
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: t('alerts.success'),
+        textBody: t('alerts.drinkLogged'),
+        button: 'OK',
+        onPressButton: () => setIsScannerVisible(false),
+      });
+    } catch (error) {
+      console.error("Error inserting drink:", error);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: t('alerts.error'),
+        textBody: t('alerts.failedToLog'),
+        button: 'OK',
+      });
+    }
     // Reset form
     setFormData({
       ...formData,
@@ -166,19 +235,73 @@ export default function HomeScreen(): JSX.Element {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  // Add animation values
+  const addButtonScale = useSharedValue(1);
+  const scrollY = useSharedValue(0);
+
+  // Animated styles for the header
+  const headerStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0.6]
+    );
+    const scale = interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0.95]
+    );
+    return {
+      opacity,
+      transform: [{ scale }]
+    };
+  });
+
+  // Animated style for add button
+  const addButtonStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: addButtonScale.value }]
+    };
+  });
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await fetchProfileAndDrinks();
+    setRefreshing(false);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="light" />
 
-      <ScrollView className="flex-1">
+      <Animated.ScrollView 
+        className="flex-1"
+        onScroll={(event) => {
+          scrollY.value = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#9333ea" // Purple color to match your theme
+            colors={["#9333ea"]}
+          />
+        }
+      >
         {/* Header with Logo */}
         <Animated.View
           entering={FadeInUp.duration(1000).springify()}
+          style={headerStyle}
           className="pt-6 px-4 items-center"
         >
-          <Text className="text-purple-600 text-center text-xl font-bold ">
-            Boozebook
-          </Text>
+          <Animated.Text
+            entering={FadeInUp.delay(800).duration(800).springify()}
+            className="text-purple-500 text-center text-4xl font-black tracking-tight mt-8"
+            style={{ fontFamily: 'Inter' }}
+          >
+            BOOZEBOOK
+          </Animated.Text>
         </Animated.View>
 
         {/* Main Content */}
@@ -186,29 +309,53 @@ export default function HomeScreen(): JSX.Element {
           {/* Quick Add Button */}
           <Animated.View
             entering={FadeInUp.delay(200).duration(1000).springify()}
+            style={addButtonStyle}
             className="mb-8"
           >
             <TouchableOpacity
               onPress={() => setIsModalVisible(true)}
+              onPressIn={() => {
+                addButtonScale.value = withSpring(0.95);
+              }}
+              onPressOut={() => {
+                addButtonScale.value = withSpring(1);
+              }}
               className="bg-primary py-4 px-6 rounded-2xl flex-row items-center justify-center space-x-2"
             >
-              <Plus size={24} color="white" />
+              <Animated.View
+                entering={FadeInUp.delay(400).duration(800)}
+              >
+                <Plus size={24} color="white" />
+              </Animated.View>
               <Text className="text-white font-semibold text-lg">
-                Add Drink
+                {t('common.add')}
               </Text>
             </TouchableOpacity>
           </Animated.View>
 
+          <BacComponent profile={profile} drinks={drinks} />
+
           {/* Stats Section */}
           <Animated.View
             entering={FadeInUp.delay(400).duration(1000).springify()}
-            className="bg-secondary border border-primary/20 rounded-2xl overflow-hidden"
+            style={{
+              transform: [{
+                translateY: interpolate(
+                  scrollY.value,
+                  [0, 100],
+                  [0, -10]
+                )
+              }]
+            }}
+            className="bg-secondary border mt-8 border-primary/20 rounded-2xl overflow-hidden"
           >
             <View className="p-4 border-b border-primary/20">
               <Text className="text-xl font-semibold text-white">
-                Community Insights
+                {t('home.communityInsights')}
               </Text>
-              <Text className="text-gray-400 text-sm mt-1">Last 30 days</Text>
+              <Text className="text-gray-400 text-sm mt-1">
+                {t('home.last30Days')}
+              </Text>
             </View>
 
             <View className="p-4">
@@ -218,7 +365,7 @@ export default function HomeScreen(): JSX.Element {
         </View>
 
         <Footer />
-      </ScrollView>
+      </Animated.ScrollView>
 
       <QuickAddModal
         visible={isModalVisible}

@@ -22,7 +22,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "bundleIdentifier": "com.jonijuntto.BoozeBook"
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +31,11 @@
         "backgroundColor": "#ffffff"
       },
       "jsEngine": "hermes",
-      "package": "com.jonijuntto.BoozeBook"
+      "package": "com.jonijuntto.BoozeBook",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",

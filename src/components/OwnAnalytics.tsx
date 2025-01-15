@@ -11,10 +11,6 @@ import {
   format,
   parseISO,
   differenceInHours,
-  isToday,
-  isYesterday,
-  startOfToday,
-  startOfYesterday,
   getHours,
 } from "date-fns";
 import type { Database } from "../integrations/supabase/types";
@@ -101,17 +97,22 @@ const StatBox = ({
   </View>
 );
 
-const OwnAnalytics = (props: { profile?: Profile }) => {
-  const { width: screenWidth } = useWindowDimensions();
+// Add this new component for empty states
+const EmptyState = ({ message }: { message: string }) => (
+  <View className="flex-1 justify-center items-center py-8 bg-background/40 rounded-lg">
+    <Text className="text-gray-400 text-center">{message}</Text>
+  </View>
+);
 
+const OwnAnalytics = (props: { 
+  profile?: Profile;
+  onRefresh?: () => Promise<void>;
+}) => {
+  const { width: screenWidth } = useWindowDimensions();
   const [drinks, setDrinks] = useState<Drink[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { profile } = props;
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
+  const { profile, onRefresh } = props;
 
   const fetchAnalytics = async () => {
     setIsLoading(true);
@@ -130,6 +131,18 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
       console.error("Error fetching analytics:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  // Add this new method to handle both internal refreshes and parent-triggered refreshes
+  const handleRefresh = async () => {
+    await fetchAnalytics();
+    if (onRefresh) {
+      await onRefresh();
     }
   };
 
@@ -189,7 +202,6 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
 
     const totalDrinks = drinks.length;
 
-    // Most frequent drink
     const typeCount = drinks.reduce((acc, drink) => {
       acc[drink.type] = (acc[drink.type] || 0) + 1;
       return acc;
@@ -567,6 +579,11 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
     };
   };
 
+  // Add this helper function
+  const hasData = (data: any[]): boolean => {
+    return data.length > 0 && data.some(item => item.population > 0);
+  };
+
   return (
     <View className="flex-1">
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
@@ -593,36 +610,42 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
         <Text className="text-xl font-bold mb-4 text-white">
           Time of Day Pattern
         </Text>
-        <PieChart
-          data={processTimeOfDay()}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="0"
-          absolute
-          hasLegend={false}
-        />
-        <View className="mt-4 flex-row flex-wrap justify-between">
-          {processTimeOfDay().map((item) => (
-            <View
-              key={item.name}
-              className="w-[48%] flex-row items-center mb-2"
-            >
-              <View
-                style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: 6,
-                  marginRight: 8,
-                }}
-              />
-              <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+        {hasData(processTimeOfDay()) ? (
+          <>
+            <PieChart
+              data={processTimeOfDay()}
+              width={screenWidth - 32}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="0"
+              absolute
+              hasLegend={false}
+            />
+            <View className="mt-4 flex-row flex-wrap justify-between">
+              {processTimeOfDay().map((item) => (
+                <View
+                  key={item.name}
+                  className="w-[48%] flex-row items-center mb-2"
+                >
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      backgroundColor: item.color,
+                      borderRadius: 6,
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        ) : (
+          <EmptyState message="No time of day data available yet" />
+        )}
       </View>
 
       <View className="p-6 bg-secondary rounded-xl shadow-lg mt-4">
@@ -640,8 +663,8 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
               return (
                 <>
                   <StatBox label="Drinking Days" value={freq.drinkingDays} />
-                  <StatBox label="Sober Days" value={freq.nonDrinkingDays} />
-                  <StatBox label="Frequency" value={freq.frequency} unit="%" />
+                  <StatBox label="Sober Days" value={freq.nonDrinkingDays || "No data"} />
+                  <StatBox label="Frequency" value={typeof freq.frequency === 'number' ? freq.frequency : "No data"} unit="%" />
                 </>
               );
             })()}
@@ -661,10 +684,10 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
                     Most Active
                   </Text>
                   <Text className="text-white text-lg mt-1">
-                    {milestones.mostActiveDay?.date}
+                    {milestones.mostActiveDay?.date || "No data"}
                   </Text>
                   <Text className="text-primary text-sm">
-                    {milestones.mostActiveDay?.count} drinks
+                    {milestones.mostActiveDay?.count || "No data about"} drinks
                   </Text>
                 </View>
 
@@ -700,7 +723,7 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
                   />
                   <StatBox
                     label="Avg Drinks/Session"
-                    value={sessions.avgDrinksPerSession}
+                    value={typeof sessions.avgDrinksPerSession === 'number' ? sessions.avgDrinksPerSession : "No data"}
                   />
                 </View>
                 <View className="bg-background/40 rounded-lg p-4">
@@ -709,7 +732,7 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
                   </Text>
                   <View className="flex-row items-baseline">
                     <Text className="text-white text-2xl font-bold">
-                      {sessions.avgAlcoholPerSession}
+                      {typeof sessions.avgAlcoholPerSession === 'number' ? sessions.avgAlcoholPerSession : "No data"}
                     </Text>
                     <Text className="text-gray-400 text-sm ml-1">grams</Text>
                   </View>
@@ -724,115 +747,135 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
         <Text className="text-xl font-bold mb-4 text-white">
           Drinks by Type
         </Text>
-        <PieChart
-          data={processTypeData()}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="0"
-          absolute
-          hasLegend={false}
-        />
-        <View className="mt-4">
-          {processTypeData().map((item) => (
-            <View key={item.name} className="flex-row items-center mb-2">
-              <View
-                style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: 6,
-                  marginRight: 8,
-                }}
-              />
-              <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+        {hasData(processTypeData()) ? (
+          <>
+            <PieChart
+              data={processTypeData()}
+              width={screenWidth - 32}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="0"
+              absolute
+              hasLegend={false}
+            />
+            <View className="mt-4">
+              {processTypeData().map((item) => (
+                <View key={item.name} className="flex-row items-center mb-2">
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      backgroundColor: item.color,
+                      borderRadius: 6,
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        ) : (
+          <EmptyState message="No drink type data available yet" />
+        )}
       </View>
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
           Alcohol Strength Distribution
         </Text>
-        <PieChart
-          data={processAlcoholStrengthDistribution()}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="0"
-          absolute
-          hasLegend={false}
-        />
-        <View className="mt-4 flex-row flex-wrap justify-between">
-          {processAlcoholStrengthDistribution().map((item) => (
-            <View
-              key={item.name}
-              className="w-[48%] flex-row items-center mb-2"
-            >
-              <View
-                style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: 6,
-                  marginRight: 8,
-                }}
-              />
-              <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+        {hasData(processAlcoholStrengthDistribution()) ? (
+          <>
+            <PieChart
+              data={processAlcoholStrengthDistribution()}
+              width={screenWidth - 32}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="0"
+              absolute
+              hasLegend={false}
+            />
+            <View className="mt-4 flex-row flex-wrap justify-between">
+              {processAlcoholStrengthDistribution().map((item) => (
+                <View
+                  key={item.name}
+                  className="w-[48%] flex-row items-center mb-2"
+                >
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      backgroundColor: item.color,
+                      borderRadius: 6,
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text className="text-white text-sm flex-shrink">{`${item.name}: ${item.population}`}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        ) : (
+          <EmptyState message="No alcohol strength data available yet" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
           Volume Consumed (Last 7 Days)
         </Text>
-        <LineChart
-          data={processVolumeOverTime()}
-          width={screenWidth - 64}
-          height={220}
-          chartConfig={chartConfig}
-          bezier
-          yAxisLabel="L "
-          style={{
-            borderRadius: 16,
-            marginVertical: 8,
-            paddingRight: 0,
-          }}
-        />
+        {hasData(processVolumeOverTime().datasets[0].data) ? (
+          <LineChart
+            data={processVolumeOverTime()}
+            width={screenWidth - 64}
+            height={220}
+            chartConfig={chartConfig}
+            bezier
+            yAxisLabel="L "
+            style={{
+              borderRadius: 16,
+              marginVertical: 8,
+              paddingRight: 0,
+            }}
+          />
+        ) : (
+          <EmptyState message="No volume data available for the last 7 days" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
           Top 5 Favorite Drinks
         </Text>
-        <BarChart
-          data={processTopDrinks()}
-          width={screenWidth - 64}
-          height={280}
-          chartConfig={{
-            ...chartConfig,
-            propsForLabels: {
-              ...chartConfig.propsForLabels,
-              fontSize: 10,
-            },
-          }}
-          verticalLabelRotation={45}
-          yAxisLabel=""
-          style={{
-            borderRadius: 16,
-            marginVertical: 8,
-            paddingRight: 0,
-          }}
-          yAxisSuffix=""
-          fromZero
-          showValuesOnTopOfBars
-        />
+        {hasData(processTopDrinks().datasets[0].data) ? (
+          <BarChart
+            data={processTopDrinks()}
+            width={screenWidth - 64}
+            height={280}
+            chartConfig={{
+              ...chartConfig,
+              propsForLabels: {
+                ...chartConfig.propsForLabels,
+                fontSize: 10,
+              },
+            }}
+            verticalLabelRotation={45}
+            yAxisLabel=""
+            style={{
+              borderRadius: 16,
+              marginVertical: 8,
+              paddingRight: 0,
+            }}
+            yAxisSuffix=""
+            fromZero
+            showValuesOnTopOfBars
+          />
+        ) : (
+          <EmptyState message="No drink data available yet" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
@@ -864,20 +907,24 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
         <Text className="text-xl font-bold mb-4 text-white">
           Weekly Pattern
         </Text>
-        <BarChart
-          data={processWeeklyData()}
-          width={screenWidth - 64}
-          height={220}
-          chartConfig={chartConfig}
-          verticalLabelRotation={30}
-          yAxisLabel=""
-          yAxisSuffix="%"
-          style={{
-            borderRadius: 16,
-            marginVertical: 8,
-            paddingRight: 0,
-          }}
-        />
+        {hasData(processWeeklyData()) ? (
+          <BarChart
+            data={processWeeklyData()}
+            width={screenWidth - 64}
+            height={220}
+            chartConfig={chartConfig}
+            verticalLabelRotation={30}
+            yAxisLabel=""
+            yAxisSuffix="%"
+            style={{
+              borderRadius: 16,
+              marginVertical: 8,
+              paddingRight: 0,
+            }}
+          />
+        ) : (
+          <EmptyState message="No weekly pattern data available yet" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
@@ -901,66 +948,78 @@ const OwnAnalytics = (props: { profile?: Profile }) => {
         <Text className="text-xl font-bold mb-4 text-white">
           Mood Distribution
         </Text>
-        <PieChart
-          data={processMoodDistribution()}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="0"
-          absolute
-          hasLegend={false}
-        />
-        <View className="mt-4">
-          {processMoodDistribution().map((item) => (
-            <View key={item.name} className="flex-row items-center mb-2">
-              <View
-                style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: 6,
-                  marginRight: 8,
-                }}
-              />
-              <Text className="text-white">{`${item.name}: ${item.population}`}</Text>
+        {hasData(processMoodDistribution()) ? (
+          <>
+            <PieChart
+              data={processMoodDistribution()}
+              width={screenWidth - 32}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="0"
+              absolute
+              hasLegend={false}
+            />
+            <View className="mt-4">
+              {processMoodDistribution().map((item) => (
+                <View key={item.name} className="flex-row items-center mb-2">
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      backgroundColor: item.color,
+                      borderRadius: 6,
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text className="text-white">{`${item.name}: ${item.population}`}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        ) : (
+          <EmptyState message="No mood data available yet" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">
         <Text className="text-xl font-bold mb-4 text-white">
           Location Distribution
         </Text>
-        <PieChart
-          data={processLocationDistribution()}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          accessor="population"
-          backgroundColor="transparent"
-          paddingLeft="0"
-          absolute
-          hasLegend={false}
-        />
-        <View className="mt-4">
-          {processLocationDistribution().map((item) => (
-            <View key={item.name} className="flex-row items-center mb-2">
-              <View
-                style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: item.color,
-                  borderRadius: 6,
-                  marginRight: 8,
-                }}
-              />
-              <Text className="text-white">{`${item.name}: ${item.population}`}</Text>
+        {hasData(processLocationDistribution()) ? (
+          <>
+            <PieChart
+              data={processLocationDistribution()}
+              width={screenWidth - 32}
+              height={220}
+              chartConfig={chartConfig}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="0"
+              absolute
+              hasLegend={false}
+            />
+            <View className="mt-4">
+              {processLocationDistribution().map((item) => (
+                <View key={item.name} className="flex-row items-center mb-2">
+                  <View
+                    style={{
+                      width: 12,
+                      height: 12,
+                      backgroundColor: item.color,
+                      borderRadius: 6,
+                      marginRight: 8,
+                    }}
+                  />
+                  <Text className="text-white">{`${item.name}: ${item.population}`}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        ) : (
+          <EmptyState message="No location data available yet" />
+        )}
       </View>
 
       <View className="p-4 bg-secondary rounded-xl shadow-lg mt-4">

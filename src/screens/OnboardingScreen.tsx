@@ -5,22 +5,17 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
-  ScrollView,
-  Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
-import LottieView from "lottie-react-native";
 import {
   Beer,
   Trophy,
   LineChart,
-  Users,
   ArrowRight,
 } from "lucide-react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import {
-  SharedValue,
   interpolate,
   useAnimatedStyle,
   withSpring,
@@ -28,8 +23,9 @@ import {
   useSharedValue,
   useAnimatedScrollHandler,
 } from "react-native-reanimated";
+import { Bubbles } from "../components/Bubbles";
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 interface OnboardingSlide {
   id: number;
@@ -60,13 +56,21 @@ const slides: OnboardingSlide[] = [
       "Participate in community challenges and earn badges for your achievements.",
     icon: <Trophy size={48} color="#9333EA" />,
   },
+];
+
+interface LogoScreen extends OnboardingSlide {
+  isLogoScreen: boolean;
+}
+
+const allSlides: (OnboardingSlide | LogoScreen)[] = [
   {
-    id: 4,
-    title: "Connect & Grow",
-    description:
-      "Be part of a supportive community sharing the same journey towards mindful drinking.",
-    icon: <Users size={48} color="#9333EA" />,
+    id: 0,
+    title: "",
+    description: "",
+    icon: null,
+    isLogoScreen: true,
   },
+  ...slides,
 ];
 
 export default function OnboardingScreen({
@@ -93,36 +97,51 @@ export default function OnboardingScreen({
     });
   }, []);
 
-  const logoAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: logoScale.value }],
-    };
-  });
+
+  const LogoSlide = () => {
+    return (
+      <View className="w-screen flex-1 items-center justify-center px-8">
+        <LinearGradient
+          colors={["#4C1D95", "#1F2937"]}
+          className="absolute top-0 left-0 right-0 bottom-0 opacity-30"
+        />
+        
+        <Bubbles />
+
+        <View className="items-center">
+          <Animated.View entering={FadeInUp.duration(1200).springify()}>
+            <Animated.Text
+              className="text-purple-500 text-center text-6xl font-black tracking-tight mt-8"
+              style={{ fontFamily: 'Inter' }}
+            >
+              BOOZEBOOK
+            </Animated.Text>
+            <Animated.Text
+              className="text-white text-center text-xl"
+              style={{ fontFamily: 'Inter' }}
+            >
+              A new way to track your drinking
+            </Animated.Text>
+          </Animated.View>
+        </View>
+      </View>
+    );
+  };
 
   const AnimatedSlide = ({
     slide,
     index,
   }: {
-    slide: OnboardingSlide;
+    slide: OnboardingSlide | LogoScreen;
     index: number;
   }) => {
-    const inputRange = [
-      (index - 1) * width,
-      index * width,
-      (index + 1) * width,
-    ];
-
+    const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+    
     const animatedStyle = useAnimatedStyle(() => {
       const scale = interpolate(scrollX.value, inputRange, [0.8, 1, 0.8]);
-
       const translateY = interpolate(scrollX.value, inputRange, [50, 0, 50]);
-
       const opacity = interpolate(scrollX.value, inputRange, [0.3, 1, 0.3]);
-
-      return {
-        transform: [{ scale }, { translateY }],
-        opacity,
-      };
+      return { transform: [{ scale }, { translateY }], opacity };
     });
 
     return (
@@ -131,34 +150,34 @@ export default function OnboardingScreen({
           colors={["#4C1D95", "#1F2937"]}
           className="absolute top-0 left-0 right-0 bottom-0 opacity-30"
         />
+        
+        <Bubbles />
 
-        <Animated.View
-          entering={FadeInUp.duration(800).springify()}
-          style={animatedStyle}
-          className="items-center"
-        >
-          <View className="bg-gray-800/50 p-6 rounded-full mb-8 shadow-lg">
-            <Animated.View
-              entering={FadeInUp.delay(400).duration(1000).springify()}
-            >
-              {slide.icon}
-            </Animated.View>
+        {('isLogoScreen' in slide && slide.isLogoScreen) ? (
+          <LogoSlide />
+        ) : (
+          <View className="items-center">
+            <View className="items-center">
+              <Animated.View style={animatedStyle}>
+                <View className="bg-gray-800/50 p-6 self-center rounded-full w-24 h-24 mb-8 shadow-lg">
+                  {slide.icon}
+                </View>
+
+                <Animated.Text
+                  className="text-3xl font-bold text-white mb-4 text-center"
+                >
+                  {slide.title}
+                </Animated.Text>
+
+                <Animated.Text
+                  className="text-gray-300 text-center text-lg mb-8"
+                >
+                  {slide.description}
+                </Animated.Text>
+              </Animated.View>
+            </View>
           </View>
-
-          <Animated.Text
-            entering={FadeInUp.delay(200).duration(800).springify()}
-            className="text-3xl font-bold text-white mb-4 text-center"
-          >
-            {slide.title}
-          </Animated.Text>
-
-          <Animated.Text
-            entering={FadeInUp.delay(400).duration(800).springify()}
-            className="text-gray-300 text-center text-lg mb-8"
-          >
-            {slide.description}
-          </Animated.Text>
-        </Animated.View>
+        )}
       </View>
     );
   };
@@ -214,24 +233,6 @@ export default function OnboardingScreen({
   return (
     <SafeAreaView className="flex-1 bg-gray-900">
       <StatusBar style="light" />
-      <Animated.View
-        entering={FadeInUp.duration(1000).springify()}
-        className="h-[30%] items-center justify-end pb-8"
-      >
-        <Animated.Image
-          entering={FadeInUp.delay(400).duration(1000).springify()}
-          source={require("../../assets/boozebook.webp")}
-          className="w-32 h-32"
-          style={logoAnimatedStyle}
-        />
-        <Animated.Text
-          entering={FadeInUp.delay(600).duration(800).springify()}
-          className="text-purple-600 text-center text-2xl font-bold mt-4"
-        >
-          Welcome to Boozebook
-        </Animated.Text>
-      </Animated.View>
-
       <Animated.ScrollView
         ref={scrollViewRef}
         horizontal
@@ -239,9 +240,9 @@ export default function OnboardingScreen({
         showsHorizontalScrollIndicator={false}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
-        className="flex-[1.5]"
+        className="flex-1"
       >
-        {slides.map((slide, index) => (
+        {allSlides.map((slide, index) => (
           <AnimatedSlide key={slide.id} slide={slide} index={index} />
         ))}
       </Animated.ScrollView>

@@ -37,8 +37,7 @@ export default function QuickAddModal({
     setShowForm(false);
     onClose();
   };
-
-  // If not showing form yet, show the choice dialog
+  
   if (!showForm) {
     return (
       <Modal visible={visible} animationType="slide" transparent>

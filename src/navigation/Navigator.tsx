@@ -11,6 +11,8 @@ import QRScannerModal from "../components/QrScanner";
 import dataJson from "../data/data.json";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import Analytics from "../screens/Analytics";
+import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
+import { useTranslation } from 'react-i18next';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -28,6 +30,7 @@ export default function Navigator() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isScannerVisible, setScannerVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,21 +52,29 @@ export default function Navigator() {
     } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      Alert.alert("Login Required", "Please login to track your drinks", [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Login",
-          onPress: () => {
-            navigation.navigate("Profile");
-          },
+      Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: 'Login Required',
+        textBody: 'Please login to track your drinks',
+        button: 'Login',
+        closeOnOverlayTap: true,
+        onPressButton: () => {
+          setScannerVisible(false);
+          navigation.navigate("Profile");
         },
-      ]);
+      });
       return;
     }
+
     console.log(data);
     const product = dataJson.find((item) => item.ean === data);
     if (!product) {
-      Alert.alert("Error", "Product not found");
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: 'Product not found',
+        button: 'OK',
+      });
       return;
     }
 
@@ -79,11 +90,21 @@ export default function Navigator() {
 
       if (error) throw error;
 
-      Alert.alert("Success", "Drink logged successfully!");
-      setScannerVisible(false);
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: 'Success',
+        textBody: 'Drink logged successfully!',
+        button: 'OK',
+        onPressButton: () => setScannerVisible(false),
+      });
     } catch (error) {
       console.error("Error inserting drink:", error);
-      Alert.alert("Error", "Failed to log drink");
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: 'Error',
+        textBody: 'Failed to log drink',
+        button: 'OK',
+      });
     }
   };
 
@@ -162,6 +183,7 @@ export default function Navigator() {
           component={Home}
           options={{
             headerShown: false,
+            title: t('common.home'),
             tabBarIcon: ({ focused }) => (
               <View style={{ alignItems: "center" }}>
                 <HomeIcon
@@ -209,6 +231,7 @@ export default function Navigator() {
           }}
           options={{
             headerShown: false,
+            title: t('common.camera'),
             tabBarIcon: ({ focused }) => (
               <View style={{ alignItems: "center" }}>
                 <Camera
