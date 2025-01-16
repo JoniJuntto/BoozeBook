@@ -2,7 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Platform, Dimensions, Alert } from "react-native";
 import Home from "../screens/Home";
-import { Camera, Home as HomeIcon, User, BarChart } from "lucide-react-native";
+import { Camera, Home as HomeIcon, User, BarChart, Trophy } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "../integrations/supabase/client";
 import Login from "../screens/Login";
@@ -13,6 +13,7 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import Analytics from "../screens/Analytics";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { useTranslation } from 'react-i18next';
+import { GamificationScreen } from "../screens/GamificationScreen";
 
 export type RootStackParamList = {
   Home: undefined;
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Profile: undefined;
   Login: undefined;
   Analytics: undefined;
+  Gamification: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -310,6 +312,50 @@ export default function Navigator() {
             }}
           />
         )}
+
+       {/*  {isAuthenticated && (
+          <Tab.Screen
+            name="Gamification"
+            component={GamificationScreen}
+            options={{
+              headerShown: false,
+              title: t('common.gamification'),
+              tabBarIcon: ({ focused }) => (
+                <View style={{ alignItems: "center" }}>
+                  <Trophy
+                    color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
+                    size={24}
+                    strokeWidth={2}
+                    style={{
+                      ...(focused && {
+                        shadowColor: "#8884d8",
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 1,
+                        shadowRadius: 10,
+                      }),
+                    }}
+                  />
+                  {focused && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        bottom: -8,
+                        width: 4,
+                        height: 4,
+                        borderRadius: 2,
+                        backgroundColor: "#8884d8",
+                        shadowColor: "#8884d8",
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 1,
+                        shadowRadius: 6,
+                      }}
+                    />
+                  )}
+                </View>
+              ),
+            }}
+          />
+        )} */}
 
         {isAuthenticated ? (
           <Tab.Screen
