@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* global.css */
+:root {
+    color-scheme: light dark;
+  }
+  
+  .dark-mode {
+    background-color: #111827;
+    color: #ffffff;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #111827;
+      color: #ffffff;
+    }
+  }

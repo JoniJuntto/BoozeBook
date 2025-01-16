@@ -37,10 +37,12 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({
   const [permission, requestPermission] = useCameraPermissions();
 
   const toggleCameraFacing = () => {
+    console.log("toggleCameraFacing", facing);
     setFacing((current) => (current === "back" ? "front" : "back"));
   };
 
   const handleBarCodeScanned = (scanningResult: BarcodeScanningResult) => {
+    console.log("scanningResult", scanningResult);
     if (scanned) return;
     setScanned(true);
     onCodeScanned(scanningResult.data);

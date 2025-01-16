@@ -116,14 +116,14 @@ export default function OnboardingScreen({
         <View className="items-center">
           <Animated.View entering={FadeInUp.duration(1200).springify()}>
             <Animated.Text
-              className="text-purple-500 text-center text-6xl font-black tracking-tight mt-8"
-              style={{ fontFamily: 'Inter' }}
+              className="text-purple-500 text-center text-6xl font-black tracking-tight mt-8 "
+              style={{ fontFamily: 'Inter-Black' }}
             >
               BOOZEBOOK
             </Animated.Text>
             <Animated.Text
               className="text-white text-center text-xl"
-              style={{ fontFamily: 'Inter' }}
+              style={{ fontFamily: 'Inter-Regular' }}
             >
               {t('onboarding.aNewWayToTrackYourDrinking')}
             </Animated.Text>
@@ -195,7 +195,7 @@ export default function OnboardingScreen({
       });
       setCurrentIndex(currentIndex + 1);
     } else {
-      setShowOnBoarding(false);
+      setShowOnBoarding(true);
     }
   };
 
@@ -236,7 +236,7 @@ export default function OnboardingScreen({
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-900">
+    <SafeAreaView className="flex-1 bg-gray-900 ">
       <StatusBar style="light" />
       <Animated.ScrollView
         ref={scrollViewRef}

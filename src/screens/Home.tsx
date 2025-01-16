@@ -2,23 +2,20 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   SafeAreaView,
   TouchableOpacity,
-  Image,
-  Alert,
   RefreshControl,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Plus } from "lucide-react-native";
-import Animated, { FadeInUp, useAnimatedStyle, useSharedValue, withSpring, interpolate, withTiming } from "react-native-reanimated";
+import Animated, { FadeInUp, useAnimatedStyle, useSharedValue, withSpring, interpolate } from "react-native-reanimated";
 import CommunityStats from "../components/CommunityStats";
 import QuickAddModal from "../components/QuickAddModal";
 import { supabase } from "../integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Database } from "../integrations/supabase/types";
 import Footer from "../components/Footer";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import QrScanner from "../components/QrScanner";
 import dataJson from "../data/data.json";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
@@ -29,7 +26,7 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
 
 export default function HomeScreen(): JSX.Element {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigation = useNavigation();
   const [isScannerVisible, setIsScannerVisible] = useState(false);
@@ -45,13 +42,6 @@ export default function HomeScreen(): JSX.Element {
     },
   });
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    console.log('Current language:', i18n.language);
-    console.log('Translation test:', t('home.communityInsights'));
-    console.log('Available languages:', i18n.languages);
-    console.log('Translation exists:', i18n.exists('home.communityInsights'));
-  }, []);
 
   const handleCodeScanned = async (data: string) => {
     const {
@@ -284,7 +274,7 @@ export default function HomeScreen(): JSX.Element {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#9333ea" // Purple color to match your theme
+            tintColor="#9333ea" 
             colors={["#9333ea"]}
           />
         }
@@ -297,8 +287,8 @@ export default function HomeScreen(): JSX.Element {
         >
           <Animated.Text
             entering={FadeInUp.delay(800).duration(800).springify()}
-            className="text-purple-500 text-center text-4xl font-black tracking-tight mt-8"
-            style={{ fontFamily: 'Inter' }}
+            className="text-purple-500 text-center text-4xl font-black tracking-tight mt-8 mb-8"
+            style={{ fontFamily: 'Inter-Black' }}
           >
             BOOZEBOOK
           </Animated.Text>

@@ -1,3 +1,5 @@
+import { Platform } from "react-native";
+
 import "./global.css";
 import "./src/utils/i18n";
 import { I18nextProvider } from 'react-i18next';
@@ -6,7 +8,6 @@ import OnboardingScreen from "./src/screens/OnboardingScreen";
 import { useState, useEffect } from "react";
 import Navigator from "./src/navigation/Navigator";
 import { View } from "react-native";
-import { AlertNotificationRoot } from 'react-native-alert-notification';
 import * as SecureStore from 'expo-secure-store';
 
 export default function App() {
@@ -16,10 +17,14 @@ export default function App() {
   useEffect(() => {
     checkOnboardingStatus();
   }, []);
-
   const checkOnboardingStatus = async () => {
     try {
-      const hasSeenOnboarding = await SecureStore.getItemAsync('hasSeenOnboarding');
+      let hasSeenOnboarding;
+      if (Platform.OS === 'web') {
+        hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      } else {
+        hasSeenOnboarding = await SecureStore.getItemAsync('hasSeenOnboarding');
+      }
       setShowOnBoarding(!hasSeenOnboarding);
     } catch (error) {
       console.error('Error checking onboarding status:', error);
@@ -30,20 +35,22 @@ export default function App() {
 
   const handleOnboardingComplete = async () => {
     try {
-      await SecureStore.setItemAsync('hasSeenOnboarding', 'true');
+      if (Platform.OS === 'web') {
+        localStorage.setItem('hasSeenOnboarding', 'true');
+      } else {
+        await SecureStore.setItemAsync('hasSeenOnboarding', 'true');
+      }
       setShowOnBoarding(false);
     } catch (error) {
       console.error('Error saving onboarding status:', error);
     }
   };
-
   if (isLoading) {
     return null;
   }
 
   return (
     <I18nextProvider i18n={i18n}>
-      <AlertNotificationRoot>
         <View className="flex-1 bg-background">
           {showOnBoarding ? (
             <OnboardingScreen setShowOnBoarding={handleOnboardingComplete} />
@@ -51,7 +58,6 @@ export default function App() {
             <Navigator />
           )}
         </View>
-      </AlertNotificationRoot>
     </I18nextProvider>
   );
 }

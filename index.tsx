@@ -12,7 +12,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 const AppComponent = () => {
-  const [fontsLoaded] = useFonts({});
+  const [fontsLoaded] = useFonts({
+    'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
+    'Inter-Regular': require('./assets/fonts/Inter-Regular.ttf'),
+    'Inter-Medium': require('./assets/fonts/Inter-Medium.ttf'),
+    'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf'),
+  });
 
   if (!fontsLoaded) {
     return null;
@@ -23,7 +28,13 @@ const AppComponent = () => {
 
 function Main() {
   useReactQueryDevTools(queryClient);
-  const [fontsLoaded] = useFonts({});
+  const [fontsLoaded] = useFonts({
+    'Inter-Black': require('./assets/fonts/Inter-Black.ttf'),
+    'Inter-Regular': require('./assets/fonts/Inter-Regular.ttf'),
+    'Inter-Medium': require('./assets/fonts/Inter-Medium.ttf'),
+    'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf'),
+  });
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
@@ -37,8 +48,24 @@ function Main() {
     },
     fonts: {
       ...DefaultTheme.fonts,
+      regular: {
+        fontFamily: 'Inter-Regular',
+      },
+      medium: {
+        fontFamily: 'Inter-Medium',
+      },
+      bold: {
+        fontFamily: 'Inter-Bold',
+      },
+      black: {
+        fontFamily: 'Inter-Black',
+      },
     },
   };
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
