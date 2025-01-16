@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   RefreshControl,
+  Platform,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Plus } from "lucide-react-native";
@@ -21,6 +22,9 @@ import dataJson from "../data/data.json";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import BacComponent from "../components/BacComponent";
 import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
+import BacGraphComponent from "../components/BacGraphComponent";
+import ResponsiveContainer from "../components/ResponsiveContainer";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
@@ -43,18 +47,43 @@ export default function HomeScreen(): JSX.Element {
   });
   const [refreshing, setRefreshing] = useState(false);
 
+  const showAlert = ({ type, title, textBody, button, onPressButton }: {
+    type: typeof ALERT_TYPE[keyof typeof ALERT_TYPE],
+    title: string,
+    textBody: string,
+    button?: string,
+    onPressButton?: () => void
+  }) => {
+    if (Platform.OS === 'web') {
+      Toast.show({
+        type: type === ALERT_TYPE.SUCCESS ? 'success' : 
+             type === ALERT_TYPE.WARNING ? 'warning' : 'error',
+        text1: title,
+        text2: textBody,
+        onPress: onPressButton,
+      });
+    } else {
+      Dialog.show({
+        type,
+        title,
+        textBody,
+        button,
+        onPressButton,
+      });
+    }
+  };
+
   const handleCodeScanned = async (data: string) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     if (!session?.user) {
-      Dialog.show({
+      showAlert({
         type: ALERT_TYPE.WARNING,
         title: t('alerts.loginRequired'),
         textBody: t('alerts.pleaseLogin'),
         button: t('common.login'),
-        closeOnOverlayTap: true,
         onPressButton: () => {
           setIsScannerVisible(false);
           navigation.navigate("Profile");
@@ -65,7 +94,7 @@ export default function HomeScreen(): JSX.Element {
     console.log(data);
     const product = dataJson.find((item) => item.ean === data);
     if (!product) {
-      Dialog.show({
+      showAlert({
         type: ALERT_TYPE.DANGER,
         title: t('alerts.error'),
         textBody: t('alerts.productNotFound'),
@@ -86,7 +115,9 @@ export default function HomeScreen(): JSX.Element {
 
       if (error) throw error;
 
-      Dialog.show({
+      fetchProfileAndDrinks();
+
+      showAlert({
         type: ALERT_TYPE.SUCCESS,
         title: t('alerts.success'),
         textBody: t('alerts.drinkLogged'),
@@ -95,7 +126,7 @@ export default function HomeScreen(): JSX.Element {
       });
     } catch (error) {
       console.error("Error inserting drink:", error);
-      Dialog.show({
+      showAlert({
         type: ALERT_TYPE.DANGER,
         title: t('alerts.error'),
         textBody: t('alerts.failedToLog'),
@@ -189,7 +220,9 @@ export default function HomeScreen(): JSX.Element {
 
       if (error) throw error;
 
-      Dialog.show({
+      fetchProfileAndDrinks();
+
+      showAlert({
         type: ALERT_TYPE.SUCCESS,
         title: t('alerts.success'),
         textBody: t('alerts.drinkLogged'),
@@ -198,7 +231,7 @@ export default function HomeScreen(): JSX.Element {
       });
     } catch (error) {
       console.error("Error inserting drink:", error);
-      Dialog.show({
+      showAlert({
         type: ALERT_TYPE.DANGER,
         title: t('alerts.error'),
         textBody: t('alerts.failedToLog'),
@@ -279,6 +312,8 @@ export default function HomeScreen(): JSX.Element {
           />
         }
       >
+        <ResponsiveContainer>
+
         {/* Header with Logo */}
         <Animated.View
           entering={FadeInUp.duration(1000).springify()}
@@ -296,34 +331,7 @@ export default function HomeScreen(): JSX.Element {
 
         {/* Main Content */}
         <View className="px-4 mt-4">
-          {/* Quick Add Button */}
-          <Animated.View
-            entering={FadeInUp.delay(200).duration(1000).springify()}
-            style={addButtonStyle}
-            className="mb-8"
-          >
-            <TouchableOpacity
-              onPress={() => setIsModalVisible(true)}
-              onPressIn={() => {
-                addButtonScale.value = withSpring(0.95);
-              }}
-              onPressOut={() => {
-                addButtonScale.value = withSpring(1);
-              }}
-              className="bg-primary py-4 px-6 rounded-2xl flex-row items-center justify-center space-x-2"
-            >
-              <Animated.View
-                entering={FadeInUp.delay(400).duration(800)}
-              >
-                <Plus size={24} color="white" />
-              </Animated.View>
-              <Text className="text-white font-semibold text-lg">
-                {t('common.add')}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          <BacComponent profile={profile} drinks={drinks} />
+          <BacGraphComponent profile={profile} drinks={drinks} />
 
           {/* Stats Section */}
           <Animated.View
@@ -353,9 +361,28 @@ export default function HomeScreen(): JSX.Element {
             </View>
           </Animated.View>
         </View>
-
-        <Footer />
+        </ResponsiveContainer>
+        {Platform.OS !== "web" && <Footer />}
       </Animated.ScrollView>
+
+      <Animated.View
+        entering={FadeInUp.delay(200).duration(1000).springify()}
+        style={[addButtonStyle]}
+        className="absolute bottom-20 right-12 z-50"
+      >
+        <TouchableOpacity
+          onPress={() => setIsModalVisible(true)}
+          onPressIn={() => {
+            addButtonScale.value = withSpring(0.95);
+          }}
+          onPressOut={() => {
+            addButtonScale.value = withSpring(1);
+          }}
+          className="bg-primary w-16 h-16 rounded-full items-center justify-center shadow-lg"
+        >
+          <Plus size={24} color="white" />
+        </TouchableOpacity>
+      </Animated.View>
 
       <QuickAddModal
         visible={isModalVisible}

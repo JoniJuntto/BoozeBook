@@ -4,6 +4,7 @@ import {
   Text,
   useWindowDimensions,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 
 import { BarChart, LineChart, PieChart } from "react-native-chart-kit";
@@ -887,8 +888,9 @@ const OwnAnalytics = (props: {
         </Text>
         <LineChart
           data={processHourlyDistribution()}
-          width={screenWidth - 64}
-          height={280}
+          
+          width={Math.min(screenWidth - 80, 800)} // Cap maximum width
+          height={Math.min(220, screenWidth * 0.4)} // Responsive height
           chartConfig={{
             ...chartConfig,
             propsForLabels: {
@@ -936,8 +938,9 @@ const OwnAnalytics = (props: {
         </Text>
         <BarChart
           data={processMonthlyTrend()}
-          width={screenWidth - 64}
-          height={220}
+          
+          width={Math.min(screenWidth - 80, 800)} // Cap maximum width
+          height={Math.min(220, screenWidth * 0.4)} // Responsive height
           chartConfig={chartConfig}
           verticalLabelRotation={30}
           yAxisLabel=""
@@ -1033,8 +1036,8 @@ const OwnAnalytics = (props: {
         </Text>
         <BarChart
           data={processSpendingTrend()}
-          width={screenWidth - 64}
-          height={220}
+          width={Math.min(screenWidth - 80, 800)} // Cap maximum width
+          height={Math.min(220, screenWidth * 0.4)} // Responsive height
           chartConfig={chartConfig}
           verticalLabelRotation={30}
           yAxisLabel="$"
@@ -1043,10 +1046,11 @@ const OwnAnalytics = (props: {
             marginVertical: 8,
             paddingRight: 0,
           }}
+
         />
       </View>
 
-      <Footer />
+      {Platform.OS !== "web" && <Footer />}
     </View>
   );
 };

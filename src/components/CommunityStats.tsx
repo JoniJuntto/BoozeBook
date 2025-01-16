@@ -137,7 +137,7 @@ export default function CommunityStats() {
 
   return (
     <ScrollView className="space-y-6 px-4">
-      <View className="flex-row flex-wrap justify-between mb-6">
+       <View className="flex-row flex-wrap justify-between mb-6 gap-4">
         <StatCard
           title={t('home.totalDrinksLogged')}
           value={stats.totalDrinks.toString()}
@@ -162,8 +162,8 @@ export default function CommunityStats() {
         </Text>
         <PieChart
           data={drinkTypeData}
-          width={width - 32}
-          height={220}
+          width={Math.min(width - 32, 800)} // Cap maximum width
+          height={Math.min(220, width * 0.4)} // Responsive height
           chartConfig={{
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -181,8 +181,8 @@ export default function CommunityStats() {
         </Text>
         <BarChart
           data={hourlyData}
-          width={width - 32}
-          height={220}
+          width={Math.min(width - 80, 800)} // Cap maximum width
+          height={Math.min(220, width * 0.4)} // Responsive height
           chartConfig={{
             backgroundColor: "transparent",
             backgroundGradientFrom: "#1a1a1a",
@@ -208,8 +208,8 @@ export default function CommunityStats() {
         </Text>
         <LineChart
           data={monthlyTrendsData}
-          width={width - 32}
-          height={220}
+          width={Math.min(width - 32, 800)} // Cap maximum width
+          height={Math.min(220, width * 0.4)} // Responsive height
           chartConfig={{
             backgroundColor: "transparent",
             backgroundGradientFrom: "#1a1a1a",

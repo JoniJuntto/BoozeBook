@@ -73,6 +73,11 @@ export default {
         weeklySpending: 'Viikollinen kulutus',
         volumeConsumedLast7Days: 'Juomien määrä viimeisen 7 päivän aikana',
         top5FavoriteDrinks: 'Top 5 suosituimmat juomat',
+        bacTimeline: 'BAC Aikajana',
+        currentBac: 'Nykyinen BAC',
+        bacDisclaimer: 'Tämä on arvio, joka perustuu Widmarkin kaavaan. Todellinen BAC voi vaihdella useista tekijöistä, kuten ruokakulutus, aineenvaihdunta ja juomisen aikataulu.',
+        bacLevel: 'BAC taso',
+        legalLimit: 'Rattijuopumuksen raja',
       },
       quickAddModal: {
         addDrink: 'Lisää juoma',

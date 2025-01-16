@@ -1,8 +1,8 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Platform, Dimensions, Alert } from "react-native";
+import { View, Platform, Dimensions } from "react-native";
 import Home from "../screens/Home";
-import { Camera, Home as HomeIcon, User, BarChart, Trophy } from "lucide-react-native";
+import { Camera, Home as HomeIcon, User, BarChart } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "../integrations/supabase/client";
 import Login from "../screens/Login";
@@ -13,7 +13,6 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import Analytics from "../screens/Analytics";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { useTranslation } from 'react-i18next';
-import { GamificationScreen } from "../screens/GamificationScreen";
 
 export type RootStackParamList = {
   Home: undefined;
@@ -124,6 +123,7 @@ export default function Navigator() {
             elevation: 0,
             borderRadius: 28,
             height: 56,
+            maxWidth: 256,
             paddingBottom: 4,
             paddingTop: 4,
             transform: [{ translateX: 0 }], // Reset any transform
@@ -187,19 +187,15 @@ export default function Navigator() {
             headerShown: false,
             title: t('common.home'),
             tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center" }}>
+              <View style={{ 
+                alignItems: "center",
+                backgroundColor: 'transparent'
+              }}>
                 <HomeIcon
                   color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
                   size={24}
                   strokeWidth={2}
-                  style={{
-                    ...(focused && {
-                      shadowColor: "#8884d8",
-                      shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 1,
-                      shadowRadius: 10,
-                    }),
-                  }}
+                  
                 />
                 {focused && (
                   <View
@@ -221,7 +217,7 @@ export default function Navigator() {
             ),
           }}
         />
-
+{Platform.OS !== 'web' && (
         <Tab.Screen
           name="Camera"
           component={View}
@@ -235,19 +231,15 @@ export default function Navigator() {
             headerShown: false,
             title: t('common.camera'),
             tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: "center" }}>
+              <View style={{ 
+                alignItems: "center",
+                backgroundColor: 'transparent'
+              }}>
                 <Camera
                   color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
                   size={24}
                   strokeWidth={2}
-                  style={{
-                    ...(focused && {
-                      shadowColor: "#8884d8",
-                      shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 1,
-                      shadowRadius: 10,
-                    }),
-                  }}
+                  
                 />
                 {focused && (
                   <View
@@ -269,6 +261,7 @@ export default function Navigator() {
             ),
           }}
         />
+        )}
 
         {isAuthenticated && (
           <Tab.Screen
@@ -277,19 +270,15 @@ export default function Navigator() {
             options={{
               headerShown: false,
               tabBarIcon: ({ focused }) => (
-                <View style={{ alignItems: "center" }}>
+                <View style={{ 
+                  alignItems: "center",
+                  backgroundColor: 'transparent'
+                }}>
                   <BarChart
                     color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
                     size={24}
                     strokeWidth={2}
-                    style={{
-                      ...(focused && {
-                        shadowColor: "#8884d8",
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 1,
-                        shadowRadius: 10,
-                      }),
-                    }}
+                   
                   />
                   {focused && (
                     <View
@@ -364,19 +353,15 @@ export default function Navigator() {
             options={{
               headerShown: false,
               tabBarIcon: ({ focused }) => (
-                <View style={{ alignItems: "center" }}>
+                <View style={{ 
+                  alignItems: "center",
+                  backgroundColor: 'transparent'
+                }}>
                   <User
                     color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
                     size={24}
                     strokeWidth={2}
-                    style={{
-                      ...(focused && {
-                        shadowColor: "#8884d8",
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 1,
-                        shadowRadius: 10,
-                      }),
-                    }}
+                   
                   />
                   {focused && (
                     <View
@@ -405,19 +390,15 @@ export default function Navigator() {
             options={{
               headerShown: false,
               tabBarIcon: ({ focused }) => (
-                <View style={{ alignItems: "center" }}>
+                <View style={{ 
+                  alignItems: "center",
+                  backgroundColor: 'transparent'
+                }}>
                   <User
                     color={focused ? "#8884d8" : "rgba(255, 255, 255, 0.5)"}
                     size={24}
                     strokeWidth={2}
-                    style={{
-                      ...(focused && {
-                        shadowColor: "#8884d8",
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 1,
-                        shadowRadius: 10,
-                      }),
-                    }}
+                    
                   />
                   {focused && (
                     <View

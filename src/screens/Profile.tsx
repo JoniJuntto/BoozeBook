@@ -6,6 +6,7 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { supabase } from "../integrations/supabase/client";
@@ -19,6 +20,8 @@ import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import LanguageSelector from '../components/LanguageSelector';
 import { useTranslation } from "react-i18next";
 import CreateSuggestion from "../components/CreateSuggestion";
+import BacGraphComponent from "../components/BacGraphComponent";
+import ResponsiveContainer from "../components/ResponsiveContainer";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Drink = Database["public"]["Tables"]["drinks"]["Row"];
@@ -171,7 +174,7 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-[#1D1C21]">
-      <Header />
+      {Platform.OS !== "web" && <Header />}
       <ScrollView 
         className="flex-1"
         refreshControl={
@@ -183,6 +186,7 @@ export default function ProfileScreen() {
           />
         }
       >
+        <ResponsiveContainer>
         <View className="p-6">
           <View className="items-center mb-8">
             <View className="w-20 h-20 bg-[#2A2A2E] rounded-full items-center justify-center mb-4">
@@ -223,7 +227,7 @@ export default function ProfileScreen() {
               )}
             </View>
           </View>
-          <BacComponent profile={profile} drinks={drinks} />
+          <BacGraphComponent profile={profile} drinks={drinks} />
           <View className="bg-[#2A2A2E] rounded-lg px-4 py-6 mt-6">
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-white text-lg font-semibold">
@@ -343,6 +347,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
         <CreateSuggestion />
+        </ResponsiveContainer>
       </ScrollView>
       <Footer />
     </View>

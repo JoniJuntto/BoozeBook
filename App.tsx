@@ -9,10 +9,14 @@ import { useState, useEffect } from "react";
 import Navigator from "./src/navigation/Navigator";
 import { View } from "react-native";
 import * as SecureStore from 'expo-secure-store';
+import Toast from 'react-native-toast-message';
+import { PostHogProvider } from 'posthog-react-native'
+
 
 export default function App() {
   const [showOnBoarding, setShowOnBoarding] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  
 
   useEffect(() => {
     checkOnboardingStatus();
@@ -50,7 +54,11 @@ export default function App() {
   }
 
   return (
+    <PostHogProvider apiKey="phc_Dp18owoJtUrLpm5piQ8so3Axorx1B0NvmfqVJk6aBpd" options={{
+host: 'https://eu.i.posthog.com', 
+  }} autocapture={true}>
     <I18nextProvider i18n={i18n}>
+      <Toast />
         <View className="flex-1 bg-background">
           {showOnBoarding ? (
             <OnboardingScreen setShowOnBoarding={handleOnboardingComplete} />
@@ -59,5 +67,6 @@ export default function App() {
           )}
         </View>
     </I18nextProvider>
+    </PostHogProvider>
   );
 }

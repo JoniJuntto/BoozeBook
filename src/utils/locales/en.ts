@@ -75,6 +75,11 @@ export default {
         weeklySpending: 'Weekly Spending',
         volumeConsumedLast7Days: 'Volume Consumed in the Last 7 Days',
         top5FavoriteDrinks: 'Top 5 Favorite Drinks',
+        bacTimeline: 'Blood Alcohol Content Timeline',
+    currentBac: 'Current BAC',
+    bacDisclaimer: 'This is an estimate based on the Widmark formula. Actual BAC may vary based on many factors including food consumption, metabolism, and timing of drinks.',
+        bacLevel: 'BAC Level',
+        legalLimit: 'Legal Limit to drive',
       },
       quickAddModal: {
         addDrink: 'Add Drink',

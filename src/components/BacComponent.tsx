@@ -101,27 +101,26 @@ export default function BacComponent({
   const { t } = useTranslation();
 
   return (
-    <View className="p-6 bg-secondary rounded-xl shadow-lg ">
-      <Text className="text-xl font-bold mb-4 text-white">
+    <View className="p-4 bg-secondary rounded-xl shadow-lg">
+      <Text className="text-xl font-bold mb-2 text-white">
         {t('common.bacEstimate')}
       </Text>
-      <View className="flex-row justify-between items-center">
-        <Text className="text-3xl font-bold text-highlight">
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-2xl font-bold text-highlight">
           {(bacData.bac * 100).toFixed(3)}‰
         </Text>
         <Text
-          className={`text-lg font-semibold ${getStatusColor(bacData.status)}`}
+          className={`text-base font-semibold ${getStatusColor(bacData.status)}`}
         >
           {t(`common.status.${bacData.status}`)}
         </Text>
-        
       </View>
-      <Text className="text-sm text-gray-100 my-2">
-          {t('common.lastDrink')} {bacData.lastDrink?.toLocaleTimeString()}
-        </Text>
-        <Text className="text-sm text-gray-400">
-          {t('common.bacEstimateLegalNotice')}
-        </Text>
+      <Text className="text-xs text-gray-100 mb-1">
+        {t('common.lastDrink')} {bacData.lastDrink?.toLocaleTimeString()}
+      </Text>
+      <Text className="text-xs text-gray-400">
+        {t('common.bacEstimateLegalNotice')}
+      </Text>
     </View>
   );
 }

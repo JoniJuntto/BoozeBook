@@ -32,7 +32,7 @@ export default function QuickAddModal({
   onScannerRequest,
 }: QuickAddModalProps): JSX.Element {
   const { t } = useTranslation();
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(Platform.OS === 'web' ? true : false);
   const [showExtraFields, setShowExtraFields] = useState(false);
 
   const resetAndClose = () => {
@@ -105,16 +105,13 @@ export default function QuickAddModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <View className="flex-1 bg-black/50 justify-end">
-          <Animated.View
-            entering={FadeInUp.duration(300)}
-            exiting={FadeOutDown.duration(200)}
-            className="bg-background rounded-t-3xl max-h-[90%]"
-          >
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+      <View className="flex-1 bg-black/50 justify-center items-center">
+        <Animated.View
+          entering={FadeInUp.duration(300)}
+          exiting={FadeOutDown.duration(200)}
+          className="bg-background rounded-3xl w-full max-w-2xl mx-4"
+        >
             {/* Header */}
             <View className="flex-row justify-between items-center p-4 border-b border-gray-800">
               <Text className="text-2xl font-bold text-white">

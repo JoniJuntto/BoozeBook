@@ -8,16 +8,20 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import Animated, { FadeInUp, useAnimatedStyle, useSharedValue, withSpring, interpolate } from "react-native-reanimated";
 import { supabase } from "../integrations/supabase/client";
 import { Bubbles } from "../components/Bubbles";
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { useTranslation } from "react-i18next";
+import { usePostHog } from "posthog-react-native";
 
 export default function Login() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+const posthog = usePostHog();
 
   async function handleLogin() {
     if (loading) return;
@@ -30,6 +34,12 @@ export default function Login() {
       });
 
       if (error) throw error;
+
+      posthog.identify(email, 
+        { 
+            email: email,
+        }
+      )
     } catch (error) {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
@@ -53,6 +63,12 @@ export default function Login() {
       });
 
       if (error) throw error;
+
+      posthog.identify(email, 
+        { 
+            email: email,
+        }
+      )
       
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
@@ -71,16 +87,53 @@ export default function Login() {
       setLoading(false);
     }
   }
+  const scrollY = useSharedValue(0);
+
+  const headerStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0.6]
+    );
+    const scale = interpolate(
+      scrollY.value,
+      [0, 100],
+      [1, 0.95]
+    );
+    return {
+      opacity,
+      transform: [{ scale }]
+    };
+  });
 
   return (
+    <View className="flex-1 bg-[#1D1C21] justify-center items-center">
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-[#1D1C21]"
+      className="max-w-3xl bg-[#1D1C21] w-full"
     >
-      <View className="flex-1 justify-center px-8">
-        <Text className="text-white text-3xl font-bold mb-8 text-center">
-          {t('login.welcome')}
-        </Text>
+      <View className="flex-1 justify-center px-8 w-full">
+        
+        <Animated.View
+          entering={FadeInUp.duration(1000).springify()}
+          style={headerStyle}
+          className="pt-6 px-4 items-center"
+        >
+          <Animated.Text
+            entering={FadeInUp.delay(800).duration(800).springify()}
+            className="text-purple-500 text-center text-4xl font-black tracking-tight mt-8"
+            style={{ fontFamily: 'Inter-Black' }}
+          >
+            BOOZEBOOK
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeInUp.delay(800).duration(800).springify()}
+            className="text-white text-center text-xl font-medium mt-8 mb-8"
+            style={{ fontFamily: 'Inter-Medium' }}
+          >
+            {t('login.welcome')}
+          </Animated.Text>
+        </Animated.View>
 
         <View className="space-y-6">
           <TextInput
@@ -130,5 +183,6 @@ export default function Login() {
         <Bubbles />
       </View>
     </KeyboardAvoidingView>
+    </View>
   );
 }
